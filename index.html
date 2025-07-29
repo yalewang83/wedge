@@ -1,0 +1,1291 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wedge Matrix</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #1e3c72, #2a5298);
+            min-height: 100vh;
+            color: white;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 15px;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .screen {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 20px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            animation: fadeIn 0.6s ease-out;
+        }
+
+        @media (min-width: 600px) {
+            .container {
+                padding: 20px;
+            }
+            .screen {
+                padding: 40px;
+            }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 2em;
+            background: linear-gradient(45deg, #ffd700, #ffed4e);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        @media (min-width: 600px) {
+            h1 {
+                font-size: 2.5em;
+            }
+        }
+
+        h2 {
+            margin-bottom: 20px;
+            color: #ffd700;
+            font-size: 1.5em;
+        }
+
+        @media (min-width: 600px) {
+            h2 {
+                font-size: 1.8em;
+            }
+        }
+
+        .user-info {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 0.9em;
+        }
+
+        .user-avatar {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+        }
+
+        .login-section {
+            text-align: center;
+            margin: 20px 0;
+        }
+
+        .google-login-btn {
+            background: #4285f4;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 25px;
+            font-size: 1em;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            transition: background 0.3s ease;
+        }
+
+        .google-login-btn:hover {
+            background: #357ae8;
+        }
+
+        .logout-btn {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            color: white;
+            padding: 5px 10px;
+            border-radius: 15px;
+            font-size: 0.8em;
+            cursor: pointer;
+        }
+
+        .wedge-selection {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+            gap: 10px;
+            margin: 30px 0;
+        }
+
+        @media (min-width: 600px) {
+            .wedge-selection {
+                grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+                gap: 15px;
+            }
+        }
+
+        .wedge-option {
+            background: rgba(255, 255, 255, 0.1);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 15px;
+            padding: 15px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        @media (min-width: 600px) {
+            .wedge-option {
+                padding: 20px;
+            }
+        }
+
+        .wedge-option:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+        }
+
+        .wedge-option.selected {
+            background: linear-gradient(45deg, #4CAF50, #45a049);
+            border-color: #4CAF50;
+            box-shadow: 0 0 20px rgba(76, 175, 80, 0.4);
+        }
+
+        .wedge-option::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+            transform: rotate(45deg);
+            transition: all 0.6s;
+            opacity: 0;
+        }
+
+        .wedge-option:hover::before {
+            opacity: 1;
+            transform: rotate(45deg) translate(50%, 50%);
+        }
+
+        .wedge-label {
+            font-size: 1.1em;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        @media (min-width: 600px) {
+            .wedge-label {
+                font-size: 1.2em;
+            }
+        }
+
+        .wedge-description {
+            font-size: 0.8em;
+            opacity: 0.8;
+        }
+
+        @media (min-width: 600px) {
+            .wedge-description {
+                font-size: 0.9em;
+            }
+        }
+
+        button {
+            background: linear-gradient(45deg, #ff6b35, #f7931e);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 50px;
+            font-size: 1em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin: 20px auto;
+            display: block;
+            box-shadow: 0 4px 15px rgba(247, 147, 30, 0.3);
+        }
+
+        @media (min-width: 600px) {
+            button {
+                padding: 15px 30px;
+                font-size: 1.1em;
+            }
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(247, 147, 30, 0.4);
+        }
+
+        button:disabled {
+            background: #666;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .shot-input-section {
+            margin: 30px 0;
+        }
+
+        .clock-position {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 15px;
+            padding: 20px;
+            margin: 20px 0;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .clock-title {
+            font-size: 1.2em;
+            margin-bottom: 15px;
+            color: #ffd700;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        @media (min-width: 600px) {
+            .clock-title {
+                font-size: 1.3em;
+            }
+        }
+
+        .clock-icon {
+            width: 30px;
+            height: 30px;
+            border: 2px solid #ffd700;
+            border-radius: 50%;
+            position: relative;
+            flex-shrink: 0;
+        }
+
+        .clock-hand {
+            position: absolute;
+            background: #ffd700;
+            border-radius: 2px;
+            transform-origin: bottom center;
+        }
+
+        .shot-input-container {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .single-shot-input {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .distance-input {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 8px;
+            padding: 10px;
+            color: white;
+            text-align: center;
+            font-size: 1em;
+            width: 100px;
+        }
+
+        .distance-input:focus {
+            outline: none;
+            border-color: #ffd700;
+            box-shadow: 0 0 10px rgba(255, 215, 0, 0.3);
+        }
+
+        .add-shot-btn {
+            background: rgba(76, 175, 80, 0.3);
+            border: 1px solid #4CAF50;
+            color: #4CAF50;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 0.9em;
+            cursor: pointer;
+            margin: 0;
+            display: inline-block;
+            width: auto;
+        }
+
+        .add-shot-btn:hover {
+            background: rgba(76, 175, 80, 0.5);
+            transform: none;
+            box-shadow: none;
+        }
+
+        .shots-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 10px;
+            min-height: 30px;
+        }
+
+        .shot-pill {
+            background: rgba(76, 175, 80, 0.3);
+            border: 1px solid #4CAF50;
+            color: #4CAF50;
+            padding: 4px 12px;
+            border-radius: 15px;
+            font-size: 0.9em;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .remove-shot {
+            cursor: pointer;
+            color: #ff6b35;
+            font-weight: bold;
+        }
+
+        .remove-shot:hover {
+            color: #ff4444;
+        }
+
+        .results-table, .summary-table {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 15px;
+            overflow: hidden;
+            margin: 20px 0;
+            overflow-x: auto;
+        }
+
+        .results-table table, .summary-table table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 300px;
+        }
+
+        .results-table th, .results-table td,
+        .summary-table th, .summary-table td {
+            padding: 10px 5px;
+            text-align: center;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            font-size: 0.9em;
+        }
+
+        @media (min-width: 600px) {
+            .results-table th, .results-table td,
+            .summary-table th, .summary-table td {
+                padding: 15px;
+                font-size: 1em;
+            }
+        }
+
+        .results-table th, .summary-table th {
+            background: rgba(255, 255, 255, 0.1);
+            font-weight: bold;
+            color: #ffd700;
+        }
+
+        .wedge-header {
+            background: linear-gradient(45deg, #4CAF50, #45a049);
+            color: white;
+            font-weight: bold;
+        }
+
+        .progress-bar {
+            background: rgba(255, 255, 255, 0.1);
+            height: 6px;
+            border-radius: 3px;
+            margin: 20px 0;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            background: linear-gradient(45deg, #4CAF50, #45a049);
+            height: 100%;
+            transition: width 0.3s ease;
+            border-radius: 3px;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .intro-text {
+            text-align: center;
+            margin: 20px 0;
+            font-size: 1em;
+            opacity: 0.9;
+            line-height: 1.6;
+        }
+
+        @media (min-width: 600px) {
+            .intro-text {
+                font-size: 1.1em;
+            }
+        }
+
+        .current-wedge {
+            text-align: center;
+            font-size: 1.3em;
+            color: #ffd700;
+            margin-bottom: 20px;
+            font-weight: bold;
+        }
+
+        @media (min-width: 600px) {
+            .current-wedge {
+                font-size: 1.5em;
+            }
+        }
+
+        .tab-navigation {
+            display: flex;
+            justify-content: center;
+            margin: 20px 0;
+            gap: 5px;
+        }
+
+        @media (min-width: 600px) {
+            .tab-navigation {
+                gap: 10px;
+            }
+        }
+
+        .tab-button {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            color: white;
+            padding: 8px 12px;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.9em;
+            margin: 0;
+        }
+
+        @media (min-width: 600px) {
+            .tab-button {
+                padding: 10px 20px;
+                font-size: 1em;
+            }
+        }
+
+        .tab-button.active {
+            background: linear-gradient(45deg, #4CAF50, #45a049);
+            border-color: #4CAF50;
+        }
+
+        .tab-button:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: none;
+        }
+
+        .tab-button.active:hover {
+            background: linear-gradient(45deg, #4CAF50, #45a049);
+        }
+
+        .caddy-section {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 15px;
+            padding: 20px;
+            margin: 20px 0;
+            text-align: center;
+        }
+
+        .distance-to-hole {
+            width: 100px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 8px;
+            padding: 10px;
+            color: white;
+            text-align: center;
+            font-size: 1.2em;
+            margin: 10px auto;
+            display: block;
+        }
+
+        .distance-to-hole:focus {
+            outline: none;
+            border-color: #ffd700;
+            box-shadow: 0 0 10px rgba(255, 215, 0, 0.3);
+        }
+
+        .recommendations {
+            margin: 20px 0;
+        }
+
+        .recommendation {
+            background: rgba(76, 175, 80, 0.2);
+            border: 1px solid rgba(76, 175, 80, 0.5);
+            border-radius: 10px;
+            padding: 15px;
+            margin: 10px 0;
+        }
+
+        .recommendation h4 {
+            color: #4CAF50;
+            margin-bottom: 5px;
+        }
+
+        .button-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            justify-content: center;
+            margin: 20px 0;
+        }
+
+        .button-group button {
+            margin: 0;
+            flex: 1;
+            min-width: 120px;
+        }
+
+        @media (min-width: 600px) {
+            .button-group button {
+                flex: none;
+            }
+        }
+
+        .re-enter-btn {
+            background: linear-gradient(45deg, #9C27B0, #7B1FA2);
+            margin-bottom: 10px;
+        }
+
+        .re-enter-btn:hover {
+            box-shadow: 0 6px 20px rgba(156, 39, 176, 0.4);
+        }
+    </style>
+</head>
+<body>
+    <div class="user-info" id="user-info" style="display: none;">
+        <img id="user-avatar" class="user-avatar" src="" alt="User">
+        <span id="user-name"></span>
+        <button class="logout-btn" onclick="signOut()">Logout</button>
+    </div>
+
+    <div class="container">
+        <!-- Welcome Screen -->
+        <div id="welcome-screen" class="screen">
+            <h1>⛳ Wedge Matrix</h1>
+            <div class="intro-text">
+                <p>Master your short game with precision distance mapping using the proven clock system.</p>
+                <p>Track your wedge distances at different swing lengths and build your personal yardage book.</p>
+            </div>
+            
+            <div class="login-section" id="login-section">
+                <button class="google-login-btn" onclick="signInWithGoogle()">
+                    <svg width="20" height="20" viewBox="0 0 24 24">
+                        <path fill="currentColor" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+                        <path fill="currentColor" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+                        <path fill="currentColor" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
+                        <path fill="currentColor" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+                    </svg>
+                    Sign in with Google
+                </button>
+            </div>
+            
+            <button id="get-started-btn" onclick="checkUserDataAndProceed()" style="display: none;">Get Started</button>
+        </div>
+
+        <!-- Wedge Selection Screen -->
+        <div id="wedge-selection-screen" class="screen hidden">
+            <h2>Select Your Wedges</h2>
+            <p>Choose which wedges you carry in your bag:</p>
+            
+            <div class="wedge-selection">
+                <div class="wedge-option" data-wedge="PW" onclick="toggleWedge('PW')">
+                    <div class="wedge-label">PW</div>
+                    <div class="wedge-description">Pitching Wedge</div>
+                </div>
+                <div class="wedge-option" data-wedge="AW" onclick="toggleWedge('AW')">
+                    <div class="wedge-label">AW</div>
+                    <div class="wedge-description">Approach Wedge</div>
+                </div>
+                <div class="wedge-option" data-wedge="50" onclick="toggleWedge('50')">
+                    <div class="wedge-label">50°</div>
+                    <div class="wedge-description">Gap Wedge</div>
+                </div>
+                <div class="wedge-option" data-wedge="52" onclick="toggleWedge('52')">
+                    <div class="wedge-label">52°</div>
+                    <div class="wedge-description">Gap Wedge</div>
+                </div>
+                <div class="wedge-option" data-wedge="56" onclick="toggleWedge('56')">
+                    <div class="wedge-label">56°</div>
+                    <div class="wedge-description">Sand Wedge</div>
+                </div>
+                <div class="wedge-option" data-wedge="58" onclick="toggleWedge('58')">
+                    <div class="wedge-label">58°</div>
+                    <div class="wedge-description">Lob Wedge</div>
+                </div>
+                <div class="wedge-option" data-wedge="60" onclick="toggleWedge('60')">
+                    <div class="wedge-label">60°</div>
+                    <div class="wedge-description">Lob Wedge</div>
+                </div>
+            </div>
+            
+            <button id="continue-button" onclick="startShotInput()" disabled>Continue</button>
+        </div>
+
+        <!-- Shot Input Screen -->
+        <div id="shot-input-screen" class="screen hidden">
+            <div class="progress-bar">
+                <div class="progress-fill" id="progress-fill"></div>
+            </div>
+            
+            <div class="current-wedge" id="current-wedge"></div>
+            
+            <div class="shot-input-section">
+                <div class="clock-position">
+                    <div class="clock-title">
+                        <div class="clock-icon">
+                            <div class="clock-hand" style="width: 2px; height: 8px; left: 50%; top: 8px; transform: translateX(-50%) rotate(-135deg);"></div>
+                        </div>
+                        7:30 Position (¼ Shot)
+                    </div>
+                    <p>Enter distance and add to list (need at least 3 shots):</p>
+                    <div class="shot-input-container">
+                        <div class="single-shot-input">
+                            <input type="number" class="distance-input" id="shot-730" placeholder="Yards">
+                            <button class="add-shot-btn" onclick="addShot('7:30')">Add Shot</button>
+                        </div>
+                        <div class="shots-list" id="shots-730"></div>
+                    </div>
+                </div>
+
+                <div class="clock-position">
+                    <div class="clock-title">
+                        <div class="clock-icon">
+                            <div class="clock-hand" style="width: 2px; height: 8px; left: 50%; top: 8px; transform: translateX(-50%) rotate(-90deg);"></div>
+                        </div>
+                        9:00 Position (½ Shot)
+                    </div>
+                    <p>Enter distance and add to list (need at least 3 shots):</p>
+                    <div class="shot-input-container">
+                        <div class="single-shot-input">
+                            <input type="number" class="distance-input" id="shot-900" placeholder="Yards">
+                            <button class="add-shot-btn" onclick="addShot('9:00')">Add Shot</button>
+                        </div>
+                        <div class="shots-list" id="shots-900"></div>
+                    </div>
+                </div>
+
+                <div class="clock-position">
+                    <div class="clock-title">
+                        <div class="clock-icon">
+                            <div class="clock-hand" style="width: 2px; height: 8px; left: 50%; top: 8px; transform: translateX(-50%) rotate(-60deg);"></div>
+                        </div>
+                        11:00 Position (Full Shot)
+                    </div>
+                    <p>Enter distance and add to list (need at least 3 shots):</p>
+                    <div class="shot-input-container">
+                        <div class="single-shot-input">
+                            <input type="number" class="distance-input" id="shot-1100" placeholder="Yards">
+                            <button class="add-shot-btn" onclick="addShot('11:00')">Add Shot</button>
+                        </div>
+                        <div class="shots-list" id="shots-1100"></div>
+                    </div>
+                </div>
+            </div>
+            
+            <button id="next-wedge-btn" onclick="processCurrentWedge()" disabled>Next Wedge</button>
+        </div>
+
+        <!-- Results Screen -->
+        <div id="results-screen" class="screen hidden">
+            <div class="tab-navigation">
+                <button class="tab-button" onclick="showTab('detailed')">Detailed</button>
+                <button class="tab-button" onclick="showTab('summary')">Summary</button>
+                <button class="tab-button active" onclick="showTab('caddy')">Caddy</button>
+            </div>
+
+            <!-- Detailed Results Tab -->
+            <div id="detailed-tab" class="tab-content hidden">
+                <h2>Your Wedge Matrix</h2>
+                <p>Here are your average distances with outliers removed:</p>
+                
+                <div class="results-table">
+                    <table id="results-table">
+                        <thead>
+                            <tr>
+                                <th>Wedge</th>
+                                <th>7:30 (¼)</th>
+                                <th>9:00 (½)</th>
+                                <th>11:00 (Full)</th>
+                            </tr>
+                        </thead>
+                        <tbody id="results-body">
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Summary Tab -->
+            <div id="summary-tab" class="tab-content hidden">
+                <h2>Wedge Summary</h2>
+                <p>Average distance for each wedge across all swing types:</p>
+                
+                <button class="re-enter-btn" onclick="reEnterShots()">Re-enter Shot Data</button>
+                
+                <div class="summary-table">
+                    <table id="summary-table">
+                        <thead>
+                            <tr>
+                                <th>Wedge</th>
+                                <th>Average Distance</th>
+                                <th>Range</th>
+                            </tr>
+                        </thead>
+                        <tbody id="summary-body">
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Caddy Tab -->
+            <div id="caddy-tab" class="tab-content">
+                <h2>Golf Caddy</h2>
+                <div class="caddy-section">
+                    <p>Enter distance to hole:</p>
+                    <input type="number" class="distance-to-hole" id="hole-distance" placeholder="Yards" oninput="updateRecommendations()">
+                    
+                    <div id="recommendations" class="recommendations"></div>
+                </div>
+            </div>
+            
+            <div class="button-group">
+                <button onclick="resetApp()">Start Over</button>
+                <button onclick="exportResults()" style="background: linear-gradient(45deg, #4CAF50, #45a049);">Export Data</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Firebase SDK (v9 compat mode) -->
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+    
+    <!-- Firebase Config -->
+    <script>
+        // Firebase configuration - replace with your actual config
+        const firebaseConfig = {
+            apiKey: "your-api-key-here",
+            authDomain: "your-project-id.firebaseapp.com", 
+            projectId: "your-project-id",
+            storageBucket: "your-project-id.appspot.com",
+            messagingSenderId: "your-sender-id",
+            appId: "your-app-id"
+        };
+
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+    </script>
+
+    <script>
+        // App state
+        let selectedWedges = [];
+        let currentWedgeIndex = 0;
+        let wedgeData = {};
+        let currentTab = 'caddy';
+        let currentUser = null;
+        let currentWedgeShots = { '7:30': [], '9:00': [], '11:00': [] };
+
+        // Firebase auth state observer
+        firebase.auth().onAuthStateChanged((user) => {
+            currentUser = user;
+            if (user) {
+                document.getElementById('user-info').style.display = 'flex';
+                document.getElementById('user-name').textContent = user.displayName;
+                document.getElementById('user-avatar').src = user.photoURL;
+                document.getElementById('login-section').style.display = 'none';
+                document.getElementById('get-started-btn').style.display = 'block';
+                loadUserData();
+            } else {
+                document.getElementById('user-info').style.display = 'none';
+                document.getElementById('login-section').style.display = 'block';
+                document.getElementById('get-started-btn').style.display = 'none';
+                showWelcome();
+            }
+        });
+
+        // Authentication functions
+        function signInWithGoogle() {
+            const provider = new firebase.auth.GoogleAuthProvider();
+            firebase.auth().signInWithPopup(provider).catch((error) => {
+                console.error('Error signing in:', error);
+            });
+        }
+
+        function signOut() {
+            firebase.auth().signOut();
+        }
+
+        // Database functions
+        async function saveUserData() {
+            if (!currentUser) return;
+            
+            try {
+                await firebase.firestore().collection('users').doc(currentUser.uid).set({
+                    selectedWedges: selectedWedges,
+                    wedgeData: wedgeData,
+                    lastUpdated: firebase.firestore.FieldValue.serverTimestamp()
+                });
+                console.log('Data saved successfully');
+            } catch (error) {
+                console.error('Error saving data:', error);
+            }
+        }
+
+        async function loadUserData() {
+            if (!currentUser) return;
+            
+            try {
+                const doc = await firebase.firestore().collection('users').doc(currentUser.uid).get();
+                if (doc.exists) {
+                    const data = doc.data();
+                    selectedWedges = data.selectedWedges || [];
+                    wedgeData = data.wedgeData || {};
+                    
+                    // If user has data, skip to results
+                    if (selectedWedges.length > 0 && Object.keys(wedgeData).length > 0) {
+                        showResults();
+                    }
+                }
+            } catch (error) {
+                console.error('Error loading data:', error);
+            }
+        }
+
+        // Navigation functions
+        function showWelcome() {
+            hideAllScreens();
+            document.getElementById('welcome-screen').classList.remove('hidden');
+        }
+
+        function showWedgeSelection() {
+            hideAllScreens();
+            document.getElementById('wedge-selection-screen').classList.remove('hidden');
+        }
+
+        function hideAllScreens() {
+            const screens = document.querySelectorAll('.screen');
+            screens.forEach(screen => screen.classList.add('hidden'));
+        }
+
+        function checkUserDataAndProceed() {
+            if (selectedWedges.length > 0 && Object.keys(wedgeData).length > 0) {
+                showResults();
+            } else {
+                showWedgeSelection();
+            }
+        }
+
+        // Wedge selection functions
+        function toggleWedge(wedge) {
+            const wedgeElement = document.querySelector(`[data-wedge="${wedge}"]`);
+            const isSelected = wedgeElement.classList.contains('selected');
+            
+            if (isSelected) {
+                wedgeElement.classList.remove('selected');
+                selectedWedges = selectedWedges.filter(w => w !== wedge);
+            } else {
+                wedgeElement.classList.add('selected');
+                selectedWedges.push(wedge);
+            }
+            
+            const continueButton = document.getElementById('continue-button');
+            continueButton.disabled = selectedWedges.length === 0;
+        }
+
+        // Shot input functions
+        function startShotInput() {
+            if (selectedWedges.length === 0) return;
+            
+            currentWedgeIndex = 0;
+            wedgeData = {};
+            
+            hideAllScreens();
+            document.getElementById('shot-input-screen').classList.remove('hidden');
+            updateShotInputScreen();
+        }
+
+        function updateShotInputScreen() {
+            const currentWedge = selectedWedges[currentWedgeIndex];
+            document.getElementById('current-wedge').textContent = `${currentWedge} Wedge`;
+            
+            const progress = ((currentWedgeIndex) / selectedWedges.length) * 100;
+            document.getElementById('progress-fill').style.width = progress + '%';
+            
+            // Clear shot inputs and lists
+            currentWedgeShots = { '7:30': [], '9:00': [], '11:00': [] };
+            document.getElementById('shot-730').value = '';
+            document.getElementById('shot-900').value = '';
+            document.getElementById('shot-1100').value = '';
+            document.getElementById('shots-730').innerHTML = '';
+            document.getElementById('shots-900').innerHTML = '';
+            document.getElementById('shots-1100').innerHTML = '';
+            
+            updateNextButtonState();
+        }
+
+        function addShot(position) {
+            const inputId = position === '7:30' ? 'shot-730' : position === '9:00' ? 'shot-900' : 'shot-1100';
+            const input = document.getElementById(inputId);
+            const value = parseFloat(input.value);
+            
+            if (isNaN(value) || value <= 0) {
+                alert('Please enter a valid distance');
+                return;
+            }
+            
+            currentWedgeShots[position].push(value);
+            input.value = '';
+            
+            updateShotsList(position);
+            updateNextButtonState();
+        }
+
+        function updateShotsList(position) {
+            const listId = position === '7:30' ? 'shots-730' : position === '9:00' ? 'shots-900' : 'shots-1100';
+            const list = document.getElementById(listId);
+            
+            list.innerHTML = '';
+            currentWedgeShots[position].forEach((shot, index) => {
+                const pill = document.createElement('div');
+                pill.className = 'shot-pill';
+                pill.innerHTML = `${shot} yds <span class="remove-shot" onclick="removeShot('${position}', ${index})">×</span>`;
+                list.appendChild(pill);
+            });
+        }
+
+        function removeShot(position, index) {
+            currentWedgeShots[position].splice(index, 1);
+            updateShotsList(position);
+            updateNextButtonState();
+        }
+
+        function updateNextButtonState() {
+            const nextBtn = document.getElementById('next-wedge-btn');
+            const hasEnoughShots = currentWedgeShots['7:30'].length >= 3 && 
+                                 currentWedgeShots['9:00'].length >= 3 && 
+                                 currentWedgeShots['11:00'].length >= 3;
+            
+            nextBtn.disabled = !hasEnoughShots;
+            
+            if (currentWedgeIndex === selectedWedges.length - 1) {
+                nextBtn.textContent = hasEnoughShots ? 'Complete Matrix' : 'Complete Matrix (Need 3+ shots each)';
+            } else {
+                nextBtn.textContent = hasEnoughShots ? 'Next Wedge' : 'Next Wedge (Need 3+ shots each)';
+            }
+        }
+
+        function processCurrentWedge() {
+            const currentWedge = selectedWedges[currentWedgeIndex];
+            const positions = ['7:30', '9:00', '11:00'];
+            
+            wedgeData[currentWedge] = {};
+            
+            positions.forEach(position => {
+                const shots = currentWedgeShots[position];
+                if (shots.length >= 3) {
+                    const average = calculateAverageWithoutOutliers(shots);
+                    wedgeData[currentWedge][position] = Math.round(average);
+                } else {
+                    wedgeData[currentWedge][position] = 'N/A';
+                }
+            });
+            
+            currentWedgeIndex++;
+            
+            if (currentWedgeIndex < selectedWedges.length) {
+                updateShotInputScreen();
+            } else {
+                saveUserData();
+                showResults();
+            }
+        }
+
+        // Calculation functions
+        function calculateAverageWithoutOutliers(shots) {
+            if (shots.length <= 2) return shots.reduce((a, b) => a + b, 0) / shots.length;
+            
+            const sorted = [...shots].sort((a, b) => a - b);
+            
+            const q1Index = Math.floor(sorted.length * 0.25);
+            const q3Index = Math.floor(sorted.length * 0.75);
+            const q1 = sorted[q1Index];
+            const q3 = sorted[q3Index];
+            const iqr = q3 - q1;
+            
+            const lowerBound = q1 - 1.5 * iqr;
+            const upperBound = q3 + 1.5 * iqr;
+            
+            const filtered = shots.filter(shot => shot >= lowerBound && shot <= upperBound);
+            
+            if (filtered.length >= 3) {
+                return filtered.reduce((a, b) => a + b, 0) / filtered.length;
+            } else {
+                return shots.reduce((a, b) => a + b, 0) / shots.length;
+            }
+        }
+
+        // Results functions
+        function showResults() {
+            hideAllScreens();
+            document.getElementById('results-screen').classList.remove('hidden');
+            
+            populateDetailedResults();
+            populateSummaryResults();
+            showTab('caddy'); // Default to caddy tab
+            updateRecommendations();
+        }
+
+        function populateDetailedResults() {
+            const tbody = document.getElementById('results-body');
+            tbody.innerHTML = '';
+            
+            selectedWedges.forEach(wedge => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td class="wedge-header">${wedge}</td>
+                    <td>${wedgeData[wedge]['7:30']} yds</td>
+                    <td>${wedgeData[wedge]['9:00']} yds</td>
+                    <td>${wedgeData[wedge]['11:00']} yds</td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+
+        function populateSummaryResults() {
+            const tbody = document.getElementById('summary-body');
+            tbody.innerHTML = '';
+            
+            selectedWedges.forEach(wedge => {
+                const distances = [];
+                const positions = ['7:30', '9:00', '11:00'];
+                
+                positions.forEach(position => {
+                    const distance = wedgeData[wedge][position];
+                    if (distance !== 'N/A' && !isNaN(distance)) {
+                        distances.push(distance);
+                    }
+                });
+                
+                if (distances.length > 0) {
+                    const average = Math.round(distances.reduce((a, b) => a + b, 0) / distances.length);
+                    const min = Math.min(...distances);
+                    const max = Math.max(...distances);
+                    const range = `${min}-${max} yds`;
+                    
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td class="wedge-header">${wedge}</td>
+                        <td>${average} yds</td>
+                        <td>${range}</td>
+                    `;
+                    tbody.appendChild(row);
+                }
+            });
+        }
+
+        // Tab functions
+        function showTab(tabName) {
+            const tabs = document.querySelectorAll('.tab-content');
+            tabs.forEach(tab => tab.classList.add('hidden'));
+            
+            const buttons = document.querySelectorAll('.tab-button');
+            buttons.forEach(button => button.classList.remove('active'));
+            
+            document.getElementById(tabName + '-tab').classList.remove('hidden');
+            
+            const activeButton = Array.from(buttons).find(button => 
+                button.textContent.toLowerCase() === tabName.toLowerCase()
+            );
+            if (activeButton) {
+                activeButton.classList.add('active');
+            }
+            
+            currentTab = tabName;
+        }
+
+        // Caddy functions
+        function updateRecommendations() {
+            const holeDistance = parseFloat(document.getElementById('hole-distance').value);
+            const recommendationsDiv = document.getElementById('recommendations');
+            
+            if (isNaN(holeDistance) || holeDistance <= 0) {
+                recommendationsDiv.innerHTML = '<p>Enter a distance to get recommendations</p>';
+                return;
+            }
+            
+            const allShots = [];
+            selectedWedges.forEach(wedge => {
+                const positions = ['7:30', '9:00', '11:00'];
+                const positionNames = ['¼ Shot', '½ Shot', 'Full Shot'];
+                
+                positions.forEach((position, index) => {
+                    const distance = wedgeData[wedge][position];
+                    if (distance !== 'N/A' && !isNaN(distance)) {
+                        allShots.push({
+                            wedge: wedge,
+                            position: position,
+                            positionName: positionNames[index],
+                            distance: distance,
+                            difference: Math.abs(distance - holeDistance)
+                        });
+                    }
+                });
+            });
+            
+            allShots.sort((a, b) => a.difference - b.difference);
+            
+            const recommendations = allShots.slice(0, 2);
+            
+            if (recommendations.length === 0) {
+                recommendationsDiv.innerHTML = '<p>No recommendations available</p>';
+                return;
+            }
+            
+            let html = '';
+            recommendations.forEach((rec, index) => {
+                const diffText = rec.distance > holeDistance ? 
+                    `${rec.difference} yds long` : 
+                    rec.distance < holeDistance ? 
+                    `${rec.difference} yds short` : 
+                    'Perfect distance!';
+                
+                html += `
+                    <div class="recommendation">
+                        <h4>Option ${index + 1}: ${rec.wedge} Wedge - ${rec.positionName}</h4>
+                        <p>Distance: ${rec.distance} yds (${diffText})</p>
+                    </div>
+                `;
+            });
+            
+            recommendationsDiv.innerHTML = html;
+        }
+
+        // Utility functions
+        function reEnterShots() {
+            showWedgeSelection();
+            // Pre-select the wedges they had before
+            selectedWedges.forEach(wedge => {
+                const wedgeElement = document.querySelector(`[data-wedge="${wedge}"]`);
+                if (wedgeElement) {
+                    wedgeElement.classList.add('selected');
+                }
+            });
+            document.getElementById('continue-button').disabled = false;
+        }
+
+        function resetApp() {
+            selectedWedges = [];
+            currentWedgeIndex = 0;
+            wedgeData = {};
+            
+            const wedgeOptions = document.querySelectorAll('.wedge-option');
+            wedgeOptions.forEach(option => option.classList.remove('selected'));
+            
+            document.getElementById('continue-button').disabled = true;
+            
+            document.getElementById('hole-distance').value = '';
+            document.getElementById('recommendations').innerHTML = '';
+            
+            // Clear Firebase data
+            if (currentUser) {
+                firebase.firestore().collection('users').doc(currentUser.uid).delete();
+            }
+            
+            showWelcome();
+        }
+
+        function exportResults() {
+            let exportText = "Wedge Matrix Results\n";
+            exportText += "===================\n\n";
+            
+            exportText += "DETAILED RESULTS\n";
+            exportText += "Wedge\t7:30 (¼ Shot)\t9:00 (½ Shot)\t11:00 (Full Shot)\n";
+            exportText += "-----\t-----------\t-----------\t--------------\n";
+            
+            selectedWedges.forEach(wedge => {
+                exportText += `${wedge}\t${wedgeData[wedge]['7:30']} yds\t${wedgeData[wedge]['9:00']} yds\t${wedgeData[wedge]['11:00']} yds\n`;
+            });
+            
+            exportText += "\n\nSUMMARY RESULTS\n";
+            exportText += "Wedge\tAverage Distance\tRange\n";
+            exportText += "-----\t---------------\t-----\n";
+            
+            selectedWedges.forEach(wedge => {
+                const distances = [];
+                const positions = ['7:30', '9:00', '11:00'];
+                
+                positions.forEach(position => {
+                    const distance = wedgeData[wedge][position];
+                    if (distance !== 'N/A' && !isNaN(distance)) {
+                        distances.push(distance);
+                    }
+                });
+                
+                if (distances.length > 0) {
+                    const average = Math.round(distances.reduce((a, b) => a + b, 0) / distances.length);
+                    const min = Math.min(...distances);
+                    const max = Math.max(...distances);
+                    const range = `${min}-${max} yds`;
+                    
+                    exportText += `${wedge}\t${average} yds\t${range}\n`;
+                }
+            });
+            
+            const blob = new Blob([exportText], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'wedge-matrix-results.txt';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+
+        // Keyboard shortcuts for adding shots
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter') {
+                const activeElement = document.activeElement;
+                if (activeElement.id === 'shot-730') {
+                    addShot('7:30');
+                } else if (activeElement.id === 'shot-900') {
+                    addShot('9:00');
+                } else if (activeElement.id === 'shot-1100') {
+                    addShot('11:00');
+                }
+            }
+        });
+
+        // Initialize app when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            // Firebase will handle initial state through auth observer
+        });
+    </script>
+</body>
+</html>
