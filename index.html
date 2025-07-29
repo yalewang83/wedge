@@ -607,6 +607,7 @@
             </div>
             
             <button id="get-started-btn" onclick="checkUserDataAndProceed()" style="display: none;">Get Started</button>
+            <button id="view-matrix-btn" onclick="showResults()" style="display: none; background: linear-gradient(45deg, #4CAF50, #45a049); margin-top: 10px;">View My Wedge Matrix</button>
         </div>
 
         <!-- Wedge Selection Screen -->
@@ -743,11 +744,32 @@
 
             <!-- Summary Tab -->
             <div id="summary-tab" class="tab-content hidden">
-                <h2>Wedge Summary</h2>
-                <p>Average distance for each wedge across all swing types:</p>
+                <h2>Wedge Matrix Summary</h2>
+                <p>Your complete wedge distance matrix:</p>
                 
-                <button class="re-enter-btn" onclick="reEnterShots()">Re-enter Shot Data</button>
+                <div class="button-group" style="margin-bottom: 20px;">
+                    <button class="re-enter-btn" onclick="reEnterShots()">Update Shot Data</button>
+                    <button onclick="clearAllData()" style="background: linear-gradient(45deg, #f44336, #d32f2f);">Clear All Data</button>
+                </div>
                 
+                <!-- Detailed Matrix in Summary -->
+                <div class="results-table">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Wedge</th>
+                                <th>7:30 (¼ Shot)</th>
+                                <th>9:00 (½ Shot)</th>
+                                <th>11:00 (Full Shot)</th>
+                            </tr>
+                        </thead>
+                        <tbody id="summary-detailed-body">
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Average Summary -->
+                <h3 style="color: #ffd700; margin-top: 30px; margin-bottom: 15px;">Average Distances</h3>
                 <div class="summary-table">
                     <table id="summary-table">
                         <thead>
@@ -812,6 +834,7 @@
                 document.getElementById('user-info').style.display = 'none';
                 document.getElementById('login-section').style.display = 'block';
                 document.getElementById('get-started-btn').style.display = 'none';
+                document.getElementById('view-matrix-btn').style.display = 'none';
                 showWelcome();
             }
         });
@@ -875,9 +898,13 @@
                     selectedWedges = data.selectedWedges || [];
                     wedgeData = data.wedgeData || {};
                     
-                    // If user has data, skip to results
+                    // Show appropriate buttons based on data
                     if (selectedWedges.length > 0 && Object.keys(wedgeData).length > 0) {
-                        showResults();
+                        document.getElementById('view-matrix-btn').style.display = 'block';
+                        document.getElementById('get-started-btn').textContent = 'Update Matrix';
+                    } else {
+                        document.getElementById('view-matrix-btn').style.display = 'none';
+                        document.getElementById('get-started-btn').textContent = 'Get Started';
                     }
                 }
             } catch (error) {
@@ -1086,6 +1113,22 @@
         }
 
         function populateSummaryResults() {
+            // Populate detailed matrix in summary tab
+            const summaryDetailedBody = document.getElementById('summary-detailed-body');
+            summaryDetailedBody.innerHTML = '';
+            
+            selectedWedges.forEach(wedge => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td class="wedge-header">${wedge}</td>
+                    <td>${wedgeData[wedge]['7:30']} yds</td>
+                    <td>${wedgeData[wedge]['9:00']} yds</td>
+                    <td>${wedgeData[wedge]['11:00']} yds</td>
+                `;
+                summaryDetailedBody.appendChild(row);
+            });
+
+            // Populate average summary
             const tbody = document.getElementById('summary-body');
             tbody.innerHTML = '';
             
@@ -1207,25 +1250,41 @@
             document.getElementById('continue-button').disabled = false;
         }
 
-        function resetApp() {
-            selectedWedges = [];
-            currentWedgeIndex = 0;
-            wedgeData = {};
-            
-            const wedgeOptions = document.querySelectorAll('.wedge-option');
-            wedgeOptions.forEach(option => option.classList.remove('selected'));
-            
-            document.getElementById('continue-button').disabled = true;
-            
-            document.getElementById('hole-distance').value = '';
-            document.getElementById('recommendations').innerHTML = '';
-            
-            // Clear Firebase data
-            if (currentUser) {
-                firebase.firestore().collection('users').doc(currentUser.uid).delete();
+        function clearAllData() {
+            if (confirm('Are you sure you want to clear all your wedge data? This cannot be undone.')) {
+                selectedWedges = [];
+                currentWedgeIndex = 0;
+                wedgeData = {};
+                
+                const wedgeOptions = document.querySelectorAll('.wedge-option');
+                wedgeOptions.forEach(option => option.classList.remove('selected'));
+                
+                document.getElementById('continue-button').disabled = true;
+                document.getElementById('hole-distance').value = '';
+                document.getElementById('recommendations').innerHTML = '';
+                
+                // Clear Firebase data
+                if (currentUser) {
+                    firebase.firestore().collection('users').doc(currentUser.uid).delete()
+                        .then(() => {
+                            console.log('Data cleared successfully');
+                            alert('All data has been cleared successfully.');
+                            showWelcome();
+                        })
+                        .catch((error) => {
+                            console.error('Error clearing data:', error);
+                            alert('Error clearing data. Please try again.');
+                        });
+                } else {
+                    showWelcome();
+                }
             }
-            
-            showWelcome();
+        }
+
+        function resetApp() {
+            if (confirm('Are you sure you want to start over? This will clear all your current data.')) {
+                clearAllData();
+            }
         }
 
         function exportResults() {
