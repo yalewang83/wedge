@@ -781,10 +781,10 @@
         </div>
     </div>
 
-    <!-- Firebase SDK (v9 compat mode) -->
-    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+    <!-- Firebase SDK v8 (more stable for this use case) -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
     
     <!-- Firebase Configuration -->
     <script src="firebase-config.js"></script>
@@ -819,13 +819,34 @@
         // Authentication functions
         function signInWithGoogle() {
             const provider = new firebase.auth.GoogleAuthProvider();
-            firebase.auth().signInWithPopup(provider).catch((error) => {
-                console.error('Error signing in:', error);
-            });
+            provider.addScope('profile');
+            provider.addScope('email');
+            
+            firebase.auth().signInWithPopup(provider)
+                .then((result) => {
+                    console.log('Successfully signed in:', result.user);
+                })
+                .catch((error) => {
+                    console.error('Sign-in error:', error);
+                    
+                    if (error.code === 'auth/popup-blocked') {
+                        alert('Popup was blocked. Please allow popups for this site and try again.');
+                    } else if (error.code === 'auth/popup-closed-by-user') {
+                        console.log('User closed the popup');
+                    } else {
+                        alert('Error signing in: ' + error.message);
+                    }
+                });
         }
 
         function signOut() {
-            firebase.auth().signOut();
+            firebase.auth().signOut()
+                .then(() => {
+                    console.log('Successfully signed out');
+                })
+                .catch((error) => {
+                    console.error('Error signing out:', error);
+                });
         }
 
         // Database functions
