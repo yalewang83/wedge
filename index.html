@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Wedge Matrix</title>
-    <!-- App Version: v2.1.8 - Fixed all missing functions: selectShot, saveShot, cancelVerification -->
+    <!-- App Version: v2.1.9 - Fixed missing authentication functions and syntax errors -->
     <style>
         * {
             margin: 0;
@@ -1017,6 +1017,22 @@
                 showWelcome();
             }
         });
+            currentUser = user;
+            if (user) {
+                document.getElementById('user-info').style.display = 'flex';
+                document.getElementById('user-name').textContent = user.displayName;
+                document.getElementById('user-avatar').src = user.photoURL;
+                document.getElementById('login-section').style.display = 'none';
+                document.getElementById('get-started-btn').style.display = 'block';
+                loadUserData();
+            } else {
+                document.getElementById('user-info').style.display = 'none';
+                document.getElementById('login-section').style.display = 'block';
+                document.getElementById('get-started-btn').style.display = 'none';
+                document.getElementById('view-matrix-btn').style.display = 'none';
+                showWelcome();
+            }
+        });
 
         // Authentication functions
         function signInWithGoogle() {
@@ -1536,6 +1552,9 @@
                 cancelVerification();
             }
         });
+
+        // Utility functions
+        function clearAllData() {
 
         // Shot verification functions
         function selectShot(wedge, position, expectedDistance, positionName) {
