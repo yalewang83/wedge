@@ -675,6 +675,7 @@
             </div>
             
             <button id="continue-button" onclick="startShotInput()" disabled>Continue</button>
+            <button id="skip-to-summary-btn" onclick="skipToSummary()" style="background: linear-gradient(45deg, #4CAF50, #45a049); display: none;">Skip to Summary</button>
         </div>
 
         <!-- Shot Input Screen -->
@@ -954,6 +955,13 @@
         function showWedgeSelection() {
             hideAllScreens();
             document.getElementById('wedge-selection-screen').classList.remove('hidden');
+            
+            // Show "Skip to Summary" button only if user has existing data
+            if (selectedWedges.length > 0 && Object.keys(wedgeData).length > 0) {
+                document.getElementById('skip-to-summary-btn').style.display = 'block';
+            } else {
+                document.getElementById('skip-to-summary-btn').style.display = 'none';
+            }
         }
 
         function hideAllScreens() {
@@ -1133,35 +1141,33 @@
             const tbody = document.getElementById('results-body');
             tbody.innerHTML = '';
             
+            const summaryDetailedBody = document.getElementById('summary-detailed-body');
+            summaryDetailedBody.innerHTML = '';
+            
             selectedWedges.forEach(wedge => {
-                const row = document.createElement('tr');
-                row.innerHTML = `
+                // Populate detailed results table
+                const detailedRow = document.createElement('tr');
+                detailedRow.innerHTML = `
                     <td class="wedge-header">${wedge}</td>
                     <td>${wedgeData[wedge]['7:30']} yds</td>
                     <td>${wedgeData[wedge]['9:00']} yds</td>
                     <td>${wedgeData[wedge]['11:00']} yds</td>
                 `;
-                tbody.appendChild(row);
+                tbody.appendChild(detailedRow);
+
+                // Populate summary detailed table (same data)
+                const summaryRow = document.createElement('tr');
+                summaryRow.innerHTML = `
+                    <td class="wedge-header">${wedge}</td>
+                    <td>${wedgeData[wedge]['7:30']} yds</td>
+                    <td>${wedgeData[wedge]['9:00']} yds</td>
+                    <td>${wedgeData[wedge]['11:00']} yds</td>
+                `;
+                summaryDetailedBody.appendChild(summaryRow);
             });
         }
 
         function populateSummaryResults() {
-            // Populate detailed matrix in summary tab with editable fields
-            const summaryDetailedBody = document.getElementById('summary-detailed-body');
-            summaryDetailedBody.innerHTML = '';
-            
-            selectedWedges.forEach(wedge => {
-                const row = document.createElement('tr');
-                row.innerHTML = `
-                    <td class="wedge-header">${wedge}</td>
-                    <td><input type="number" class="edit-distance" data-wedge="${wedge}" data-position="7:30" value="${wedgeData[wedge]['7:30'] !== 'N/A' ? wedgeData[wedge]['7:30'] : ''}" placeholder="N/A" onchange="updateDistance('${wedge}', '7:30', this.value)"></td>
-                    <td><input type="number" class="edit-distance" data-wedge="${wedge}" data-position="9:00" value="${wedgeData[wedge]['9:00'] !== 'N/A' ? wedgeData[wedge]['9:00'] : ''}" placeholder="N/A" onchange="updateDistance('${wedge}', '9:00', this.value)"></td>
-                    <td><input type="number" class="edit-distance" data-wedge="${wedge}" data-position="11:00" value="${wedgeData[wedge]['11:00'] !== 'N/A' ? wedgeData[wedge]['11:00'] : ''}" placeholder="N/A" onchange="updateDistance('${wedge}', '11:00', this.value)"></td>
-                `;
-                summaryDetailedBody.appendChild(row);
-            });
-
-            // Populate average summary
             const tbody = document.getElementById('summary-body');
             tbody.innerHTML = '';
             
@@ -1193,55 +1199,10 @@
             });
         }
 
-        // Function to update distances when edited
-        function updateDistance(wedge, position, value) {
-            const numValue = parseFloat(value);
-            if (isNaN(numValue) || numValue <= 0) {
-                wedgeData[wedge][position] = 'N/A';
-            } else {
-                wedgeData[wedge][position] = Math.round(numValue);
-            }
-            
-            // Re-populate the average summary
-            populateAverageSummary();
-            
-            // Save to Firebase
-            saveUserData();
-            
-            console.log(`Updated ${wedge} ${position} to ${wedgeData[wedge][position]}`);
-        }
-
-        // Helper function to update just the average summary
-        function populateAverageSummary() {
-            const tbody = document.getElementById('summary-body');
-            tbody.innerHTML = '';
-            
-            selectedWedges.forEach(wedge => {
-                const distances = [];
-                const positions = ['7:30', '9:00', '11:00'];
-                
-                positions.forEach(position => {
-                    const distance = wedgeData[wedge][position];
-                    if (distance !== 'N/A' && !isNaN(distance)) {
-                        distances.push(distance);
-                    }
-                });
-                
-                if (distances.length > 0) {
-                    const average = Math.round(distances.reduce((a, b) => a + b, 0) / distances.length);
-                    const min = Math.min(...distances);
-                    const max = Math.max(...distances);
-                    const range = `${min}-${max} yds`;
-                    
-                    const row = document.createElement('tr');
-                    row.innerHTML = `
-                        <td class="wedge-header">${wedge}</td>
-                        <td>${average} yds</td>
-                        <td>${range}</td>
-                    `;
-                    tbody.appendChild(row);
-                }
-            });
+        // Function to skip to summary from wedge selection
+        function skipToSummary() {
+            showResults();
+            showTab('summary');
         }
 
         // Tab functions
