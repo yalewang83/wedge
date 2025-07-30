@@ -681,6 +681,26 @@
             color: white;
         }
 
+        .shot-logged-message {
+            background: rgba(76, 175, 80, 0.2);
+            border: 1px solid rgba(76, 175, 80, 0.5);
+            border-radius: 10px;
+            padding: 15px;
+            margin: 15px 0;
+            text-align: center;
+            color: #4CAF50;
+            font-weight: bold;
+            font-size: 1.1em;
+            animation: fadeInOut 3s ease-in-out;
+        }
+
+        @keyframes fadeInOut {
+            0% { opacity: 0; transform: translateY(-10px); }
+            20% { opacity: 1; transform: translateY(0); }
+            80% { opacity: 1; transform: translateY(0); }
+            100% { opacity: 0; transform: translateY(-10px); }
+        }
+
         .edit-distance {
             background: rgba(255, 255, 255, 0.1);
             border: 1px solid rgba(255, 255, 255, 0.3);
@@ -784,6 +804,8 @@
 
         <!-- Shot Input Screen -->
         <div id="shot-input-screen" class="screen hidden">
+            <button class="back-button" onclick="showWedgeSelection()">← Back</button>
+            
             <div class="progress-bar">
                 <div class="progress-fill" id="progress-fill"></div>
             </div>
@@ -1434,31 +1456,15 @@
             // Close modal
             cancelVerification();
             
-            // Show simple success message
-            const successMsg = document.createElement('div');
-            successMsg.style.cssText = `
-                position: fixed;
-                top: 50%;
-                left: 50%;
-                transform: translate(-50%, -50%);
-                background: linear-gradient(45deg, #4CAF50, #45a049);
-                color: white;
-                padding: 20px 30px;
-                border-radius: 25px;
-                font-size: 1.2em;
-                font-weight: bold;
-                z-index: 1001;
-                box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
-            `;
-            successMsg.textContent = `${actualDistance} yards logged`;
-            document.body.appendChild(successMsg);
+            // Show success message on the page
+            const messageDiv = document.getElementById('shot-logged-message');
+            messageDiv.textContent = `${actualDistance} yards logged for ${wedge} wedge`;
+            messageDiv.style.display = 'block';
             
-            // Remove message after 2 seconds
+            // Hide message after 3 seconds (matches animation duration)
             setTimeout(() => {
-                if (successMsg.parentNode) {
-                    successMsg.parentNode.removeChild(successMsg);
-                }
-            }, 2000);
+                messageDiv.style.display = 'none';
+            }, 3000);
             
             // Save to Firebase and refresh displays
             saveUserData();
