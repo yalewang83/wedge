@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Wedge Matrix</title>
-    <!-- App Version: v2.1.5 - Fixed showTab function placement and ensured proper loading order -->
+    <!-- App Version: v2.1.7 - Fixed missing updateRecommendations function -->
     <style>
         * {
             margin: 0;
@@ -1319,7 +1319,13 @@
             
             summaryDetailedBody.innerHTML = '';
             
-            selectedWedges.forEach(wedge => {
+            // Get all wedges that have data, not just selectedWedges
+            const allWedgesWithData = Object.keys(wedgeData);
+            console.log('All wedges with data:', allWedgesWithData);
+            console.log('Selected wedges:', selectedWedges);
+            console.log('Wedge data:', wedgeData);
+            
+            allWedgesWithData.forEach(wedge => {
                 if (wedgeData[wedge]) {
                     const summaryRow = document.createElement('tr');
                     summaryRow.innerHTML = `
@@ -1332,7 +1338,7 @@
                 }
             });
             
-            console.log('Summary table populated with', selectedWedges.length, 'wedges');
+            console.log('Summary table populated with', allWedgesWithData.length, 'wedges');
         }
 
         function populateSummaryResults() {
