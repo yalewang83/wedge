@@ -784,8 +784,6 @@
 
         <!-- Shot Input Screen -->
         <div id="shot-input-screen" class="screen hidden">
-            <button class="back-button" onclick="showWedgeSelection()">← Back to Wedge Selection</button>
-            
             <div class="progress-bar">
                 <div class="progress-fill" id="progress-fill"></div>
             </div>
@@ -850,8 +848,6 @@
 
         <!-- Results Screen -->
         <div id="results-screen" class="screen hidden">
-            <button class="back-button" onclick="showWedgeSelection()">← Back to Wedge Selection</button>
-            
             <div class="tab-navigation">
                 <button class="tab-button" onclick="addMoreShots()">Add More Shots</button>
                 <button class="tab-button" onclick="showTab('summary')">Summary</button>
@@ -955,6 +951,9 @@
         let currentTab = 'caddy';
         let currentUser = null;
         let currentWedgeShots = { '7:30': [], '9:00': [], '11:00': [] };
+        
+        // Store individual shots for editing
+        let individualShots = {};
 
         // Firebase auth state observer
         firebase.auth().onAuthStateChanged((user) => {
@@ -1120,15 +1119,27 @@
             const progress = ((currentWedgeIndex) / selectedWedges.length) * 100;
             document.getElementById('progress-fill').style.width = progress + '%';
             
-            // Clear shot inputs and lists
-            currentWedgeShots = { '7:30': [], '9:00': [], '11:00': [] };
+            // Load existing shots if available
+            const wedgeKey = currentWedge;
+            if (individualShots[wedgeKey]) {
+                currentWedgeShots = {
+                    '7:30': [...(individualShots[wedgeKey]['7:30'] || [])],
+                    '9:00': [...(individualShots[wedgeKey]['9:00'] || [])],
+                    '11:00': [...(individualShots[wedgeKey]['11:00'] || [])]
+                };
+            } else {
+                currentWedgeShots = { '7:30': [], '9:00': [], '11:00': [] };
+            }
+            
+            // Clear input fields
             document.getElementById('shot-730').value = '';
             document.getElementById('shot-900').value = '';
             document.getElementById('shot-1100').value = '';
-            document.getElementById('shots-730').innerHTML = '';
-            document.getElementById('shots-900').innerHTML = '';
-            document.getElementById('shots-1100').innerHTML = '';
             
+            // Update displays
+            updateShotsList('7:30');
+            updateShotsList('9:00');
+            updateShotsList('11:00');
             updateNextButtonState();
         }
 
@@ -1186,6 +1197,13 @@
         function processCurrentWedge() {
             const currentWedge = selectedWedges[currentWedgeIndex];
             const positions = ['7:30', '9:00', '11:00'];
+            
+            // Save individual shots
+            individualShots[currentWedge] = {
+                '7:30': [...currentWedgeShots['7:30']],
+                '9:00': [...currentWedgeShots['9:00']],
+                '11:00': [...currentWedgeShots['11:00']]
+            };
             
             wedgeData[currentWedge] = {};
             
@@ -1262,35 +1280,8 @@
         }
 
         function populateSummaryResults() {
-            const tbody = document.getElementById('summary-body');
-            tbody.innerHTML = '';
-            
-            selectedWedges.forEach(wedge => {
-                const distances = [];
-                const positions = ['7:30', '9:00', '11:00'];
-                
-                positions.forEach(position => {
-                    const distance = wedgeData[wedge][position];
-                    if (distance !== 'N/A' && !isNaN(distance)) {
-                        distances.push(distance);
-                    }
-                });
-                
-                if (distances.length > 0) {
-                    const average = Math.round(distances.reduce((a, b) => a + b, 0) / distances.length);
-                    const min = Math.min(...distances);
-                    const max = Math.max(...distances);
-                    const range = `${min}-${max} yds`;
-                    
-                    const row = document.createElement('tr');
-                    row.innerHTML = `
-                        <td class="wedge-header">${wedge}</td>
-                        <td>${average} yds</td>
-                        <td>${range}</td>
-                    `;
-                    tbody.appendChild(row);
-                }
-            });
+            // Just call the detailed results function since we removed the average section
+            populateDetailedResults();
         }
 
         // Function to skip to summary from wedge selection
@@ -1429,21 +1420,52 @@
                 return;
             }
             
-            // Add this shot to the database for recalculation
-            // We'll create a new array of shots for this position and recalculate
-            addShotToData(wedge, position, actualDistance);
+            // Add this shot to the individual shots data
+            if (!individualShots[wedge]) {
+                individualShots[wedge] = { '7:30': [], '9:00': [], '11:00': [] };
+            }
+            individualShots[wedge][position].push(actualDistance);
+            
+            // Recalculate average
+            const shots = individualShots[wedge][position];
+            const newAverage = calculateAverageWithoutOutliers(shots);
+            wedgeData[wedge][position] = Math.round(newAverage);
             
             // Close modal
             cancelVerification();
             
-            // Show success message
-            const difference = Math.abs(actualDistance - expectedDistance);
-            const accuracy = difference <= 5 ? 'Excellent!' : difference <= 10 ? 'Good!' : 'Keep practicing!';
+            // Show simple success message
+            const successMsg = document.createElement('div');
+            successMsg.style.cssText = `
+                position: fixed;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                background: linear-gradient(45deg, #4CAF50, #45a049);
+                color: white;
+                padding: 20px 30px;
+                border-radius: 25px;
+                font-size: 1.2em;
+                font-weight: bold;
+                z-index: 1001;
+                box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            `;
+            successMsg.textContent = `${actualDistance} yards logged`;
+            document.body.appendChild(successMsg);
             
-            alert(`Shot saved! ${accuracy}\nExpected: ${expectedDistance} yds\nActual: ${actualDistance} yds\nDifference: ${difference} yds`);
+            // Remove message after 2 seconds
+            setTimeout(() => {
+                if (successMsg.parentNode) {
+                    successMsg.parentNode.removeChild(successMsg);
+                }
+            }, 2000);
             
-            // Refresh recommendations with updated data
+            // Save to Firebase and refresh displays
+            saveUserData();
+            populateDetailedResults();
             updateRecommendations();
+            
+            console.log(`Added shot: ${wedge} ${position} = ${actualDistance} yds. New average: ${wedgeData[wedge][position]} yds`);
         }
 
         function addShotToData(wedge, position, actualDistance) {
@@ -1509,6 +1531,7 @@
                 selectedWedges = [];
                 currentWedgeIndex = 0;
                 wedgeData = {};
+                individualShots = {};
                 
                 const wedgeOptions = document.querySelectorAll('.wedge-option');
                 wedgeOptions.forEach(option => option.classList.remove('selected'));
@@ -1545,37 +1568,12 @@
             let exportText = "Wedge Matrix Results\n";
             exportText += "===================\n\n";
             
-            exportText += "DETAILED RESULTS\n";
+            exportText += "WEDGE DISTANCES\n";
             exportText += "Wedge\t7:30 (¼ Shot)\t9:00 (½ Shot)\t11:00 (Full Shot)\n";
             exportText += "-----\t-----------\t-----------\t--------------\n";
             
             selectedWedges.forEach(wedge => {
                 exportText += `${wedge}\t${wedgeData[wedge]['7:30']} yds\t${wedgeData[wedge]['9:00']} yds\t${wedgeData[wedge]['11:00']} yds\n`;
-            });
-            
-            exportText += "\n\nSUMMARY RESULTS\n";
-            exportText += "Wedge\tAverage Distance\tRange\n";
-            exportText += "-----\t---------------\t-----\n";
-            
-            selectedWedges.forEach(wedge => {
-                const distances = [];
-                const positions = ['7:30', '9:00', '11:00'];
-                
-                positions.forEach(position => {
-                    const distance = wedgeData[wedge][position];
-                    if (distance !== 'N/A' && !isNaN(distance)) {
-                        distances.push(distance);
-                    }
-                });
-                
-                if (distances.length > 0) {
-                    const average = Math.round(distances.reduce((a, b) => a + b, 0) / distances.length);
-                    const min = Math.min(...distances);
-                    const max = Math.max(...distances);
-                    const range = `${min}-${max} yds`;
-                    
-                    exportText += `${wedge}\t${average} yds\t${range}\n`;
-                }
             });
             
             // Check if we're on mobile (specifically iOS Safari)
