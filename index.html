@@ -576,6 +576,29 @@
         .re-enter-btn:hover {
             box-shadow: 0 6px 20px rgba(156, 39, 176, 0.4);
         }
+
+        .edit-distance {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 5px;
+            padding: 5px 8px;
+            color: white;
+            text-align: center;
+            font-size: 0.9em;
+            width: 60px;
+            transition: all 0.3s ease;
+        }
+
+        .edit-distance:focus {
+            outline: none;
+            border-color: #ffd700;
+            box-shadow: 0 0 8px rgba(255, 215, 0, 0.3);
+            background: rgba(255, 255, 255, 0.15);
+        }
+
+        .edit-distance:hover {
+            border-color: rgba(255, 255, 255, 0.5);
+        }
     </style>
 </head>
 <body>
@@ -907,9 +930,14 @@
                     if (selectedWedges.length > 0 && Object.keys(wedgeData).length > 0) {
                         document.getElementById('view-matrix-btn').style.display = 'block';
                         document.getElementById('get-started-btn').textContent = 'Update Matrix';
+                        
+                        // Automatically go to summary screen instead of welcome
+                        showResults();
+                        showTab('summary'); // Show summary tab by default
                     } else {
                         document.getElementById('view-matrix-btn').style.display = 'none';
                         document.getElementById('get-started-btn').textContent = 'Get Started';
+                        showWelcome();
                     }
                 }
             } catch (error) {
@@ -1118,7 +1146,7 @@
         }
 
         function populateSummaryResults() {
-            // Populate detailed matrix in summary tab
+            // Populate detailed matrix in summary tab with editable fields
             const summaryDetailedBody = document.getElementById('summary-detailed-body');
             summaryDetailedBody.innerHTML = '';
             
@@ -1126,14 +1154,65 @@
                 const row = document.createElement('tr');
                 row.innerHTML = `
                     <td class="wedge-header">${wedge}</td>
-                    <td>${wedgeData[wedge]['7:30']} yds</td>
-                    <td>${wedgeData[wedge]['9:00']} yds</td>
-                    <td>${wedgeData[wedge]['11:00']} yds</td>
+                    <td><input type="number" class="edit-distance" data-wedge="${wedge}" data-position="7:30" value="${wedgeData[wedge]['7:30'] !== 'N/A' ? wedgeData[wedge]['7:30'] : ''}" placeholder="N/A" onchange="updateDistance('${wedge}', '7:30', this.value)"></td>
+                    <td><input type="number" class="edit-distance" data-wedge="${wedge}" data-position="9:00" value="${wedgeData[wedge]['9:00'] !== 'N/A' ? wedgeData[wedge]['9:00'] : ''}" placeholder="N/A" onchange="updateDistance('${wedge}', '9:00', this.value)"></td>
+                    <td><input type="number" class="edit-distance" data-wedge="${wedge}" data-position="11:00" value="${wedgeData[wedge]['11:00'] !== 'N/A' ? wedgeData[wedge]['11:00'] : ''}" placeholder="N/A" onchange="updateDistance('${wedge}', '11:00', this.value)"></td>
                 `;
                 summaryDetailedBody.appendChild(row);
             });
 
             // Populate average summary
+            const tbody = document.getElementById('summary-body');
+            tbody.innerHTML = '';
+            
+            selectedWedges.forEach(wedge => {
+                const distances = [];
+                const positions = ['7:30', '9:00', '11:00'];
+                
+                positions.forEach(position => {
+                    const distance = wedgeData[wedge][position];
+                    if (distance !== 'N/A' && !isNaN(distance)) {
+                        distances.push(distance);
+                    }
+                });
+                
+                if (distances.length > 0) {
+                    const average = Math.round(distances.reduce((a, b) => a + b, 0) / distances.length);
+                    const min = Math.min(...distances);
+                    const max = Math.max(...distances);
+                    const range = `${min}-${max} yds`;
+                    
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td class="wedge-header">${wedge}</td>
+                        <td>${average} yds</td>
+                        <td>${range}</td>
+                    `;
+                    tbody.appendChild(row);
+                }
+            });
+        }
+
+        // Function to update distances when edited
+        function updateDistance(wedge, position, value) {
+            const numValue = parseFloat(value);
+            if (isNaN(numValue) || numValue <= 0) {
+                wedgeData[wedge][position] = 'N/A';
+            } else {
+                wedgeData[wedge][position] = Math.round(numValue);
+            }
+            
+            // Re-populate the average summary
+            populateAverageSummary();
+            
+            // Save to Firebase
+            saveUserData();
+            
+            console.log(`Updated ${wedge} ${position} to ${wedgeData[wedge][position]}`);
+        }
+
+        // Helper function to update just the average summary
+        function populateAverageSummary() {
             const tbody = document.getElementById('summary-body');
             tbody.innerHTML = '';
             
@@ -1176,7 +1255,7 @@
             document.getElementById(tabName + '-tab').classList.remove('hidden');
             
             const activeButton = Array.from(buttons).find(button => 
-                button.textContent.toLowerCase() === tabName.toLowerCase()
+                button.textContent.toLowerCase().includes(tabName.toLowerCase())
             );
             if (activeButton) {
                 activeButton.classList.add('active');
