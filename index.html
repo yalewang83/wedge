@@ -1290,13 +1290,15 @@
 
         function populateDetailedResults() {
             const summaryDetailedBody = document.getElementById('summary-detailed-body');
-            if (!summaryDetailedBody) return;
+            if (!summaryDetailedBody) {
+                console.error('Summary table body not found');
+                return;
+            }
             
             summaryDetailedBody.innerHTML = '';
             
             selectedWedges.forEach(wedge => {
                 if (wedgeData[wedge]) {
-                    // Populate summary detailed table
                     const summaryRow = document.createElement('tr');
                     summaryRow.innerHTML = `
                         <td class="wedge-header">${wedge}</td>
@@ -1307,10 +1309,11 @@
                     summaryDetailedBody.appendChild(summaryRow);
                 }
             });
+            
+            console.log('Summary table populated with', selectedWedges.length, 'wedges');
         }
 
         function populateSummaryResults() {
-            // Just call the detailed results function
             populateDetailedResults();
         }
 
