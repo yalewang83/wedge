@@ -1090,6 +1090,9 @@
             } else {
                 document.getElementById('skip-to-summary-btn').style.display = 'none';
             }
+            
+            // Reset the current wedge index so we don't lose data when backing out
+            currentWedgeIndex = 0;
         }
 
         function hideAllScreens() {
@@ -1278,6 +1281,7 @@
             hideAllScreens();
             document.getElementById('results-screen').classList.remove('hidden');
             
+            // Always populate the results when showing the results screen
             populateDetailedResults();
             populateSummaryResults();
             showTab('caddy'); // Default to caddy tab
@@ -1324,6 +1328,9 @@
             });
             document.getElementById('continue-button').disabled = false;
         }
+
+        // Utility functions
+        function clearAllData() {
 
         // Tab functions
         function showTab(tabName) {
@@ -1519,8 +1526,8 @@
             }
         });
 
-        // Utility functions
-        function reEnterShots() {
+        // Function for "Add More Shots" button
+        function addMoreShots() {
             showWedgeSelection();
             // Pre-select the wedges they had before
             selectedWedges.forEach(wedge => {
@@ -1531,8 +1538,6 @@
             });
             document.getElementById('continue-button').disabled = false;
         }
-
-        function clearAllData() {
             if (confirm('Are you sure you want to clear all your wedge data? This cannot be undone.')) {
                 selectedWedges = [];
                 currentWedgeIndex = 0;
