@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Wedge Matrix</title>
-    <!-- App Version: v2.1.4 - Fixed missing showTab function causing tab navigation errors -->
+    <!-- App Version: v2.1.5 - Fixed showTab function placement and ensured proper loading order -->
     <style>
         * {
             margin: 0;
@@ -978,6 +978,27 @@
         // Store individual shots for editing
         let individualShots = {};
 
+        // Tab functions - moved to top to ensure they're available
+        function showTab(tabName) {
+            console.log('showTab called with:', tabName);
+            const tabs = document.querySelectorAll('.tab-content');
+            tabs.forEach(tab => tab.classList.add('hidden'));
+            
+            const buttons = document.querySelectorAll('.tab-button');
+            buttons.forEach(button => button.classList.remove('active'));
+            
+            document.getElementById(tabName + '-tab').classList.remove('hidden');
+            
+            const activeButton = Array.from(buttons).find(button => 
+                button.textContent.toLowerCase().includes(tabName.toLowerCase())
+            );
+            if (activeButton) {
+                activeButton.classList.add('active');
+            }
+            
+            currentTab = tabName;
+        }
+
         // Firebase auth state observer
         firebase.auth().onAuthStateChanged((user) => {
             currentUser = user;
@@ -1360,27 +1381,17 @@
             currentTab = tabName;
         }
 
-        // Tab functions
-        function showTab(tabName) {
-            const tabs = document.querySelectorAll('.tab-content');
-            tabs.forEach(tab => tab.classList.add('hidden'));
+        // Results functions
+        function showResults() {
+            hideAllScreens();
+            document.getElementById('results-screen').classList.remove('hidden');
             
-            const buttons = document.querySelectorAll('.tab-button');
-            buttons.forEach(button => button.classList.remove('active'));
-            
-            document.getElementById(tabName + '-tab').classList.remove('hidden');
-            
-            const activeButton = Array.from(buttons).find(button => 
-                button.textContent.toLowerCase().includes(tabName.toLowerCase())
-            );
-            if (activeButton) {
-                activeButton.classList.add('active');
-            }
-            
-            currentTab = tabName;
+            // Always populate the results when showing the results screen
+            populateDetailedResults();
+            populateSummaryResults();
+            showTab('caddy'); // Default to caddy tab
+            updateRecommendations();
         }
-
-        // Caddy functions
         function updateRecommendations() {
             const holeDistance = parseFloat(document.getElementById('hole-distance').value);
             const recommendationsDiv = document.getElementById('recommendations');
