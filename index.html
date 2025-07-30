@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Wedge Matrix</title>
+    <!-- App Version: v2.1.4 - Fixed missing showTab function causing tab navigation errors -->
     <style>
         * {
             margin: 0;
@@ -1338,6 +1339,26 @@
 
         // Utility functions
         function clearAllData() {
+
+        // Tab functions
+        function showTab(tabName) {
+            const tabs = document.querySelectorAll('.tab-content');
+            tabs.forEach(tab => tab.classList.add('hidden'));
+            
+            const buttons = document.querySelectorAll('.tab-button');
+            buttons.forEach(button => button.classList.remove('active'));
+            
+            document.getElementById(tabName + '-tab').classList.remove('hidden');
+            
+            const activeButton = Array.from(buttons).find(button => 
+                button.textContent.toLowerCase().includes(tabName.toLowerCase())
+            );
+            if (activeButton) {
+                activeButton.classList.add('active');
+            }
+            
+            currentTab = tabName;
+        }
 
         // Tab functions
         function showTab(tabName) {
