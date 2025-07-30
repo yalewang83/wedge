@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Wedge Matrix</title>
-    <!-- App Version: v2.2.0 - Fixed syntax error and reorganized authentication functions -->
     <style>
         * {
             margin: 0;
@@ -577,153 +576,6 @@
         .re-enter-btn:hover {
             box-shadow: 0 6px 20px rgba(156, 39, 176, 0.4);
         }
-
-        .shot-recommendation-btn {
-            background: linear-gradient(45deg, #2196F3, #1976D2);
-            color: white;
-            border: none;
-            padding: 12px 20px;
-            border-radius: 25px;
-            font-size: 1em;
-            font-weight: bold;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            margin: 10px 5px;
-            display: inline-block;
-            box-shadow: 0 4px 15px rgba(33, 150, 243, 0.3);
-        }
-
-        .shot-recommendation-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(33, 150, 243, 0.4);
-            background: linear-gradient(45deg, #1976D2, #1565C0);
-        }
-
-        .shot-verification-modal {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.8);
-            z-index: 1000;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 20px;
-        }
-
-        .shot-verification-content {
-            background: linear-gradient(135deg, #1e3c72, #2a5298);
-            border-radius: 20px;
-            padding: 30px;
-            max-width: 400px;
-            width: 100%;
-            text-align: center;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-        }
-
-        .shot-verification-content h3 {
-            color: #ffd700;
-            margin-bottom: 20px;
-            font-size: 1.5em;
-        }
-
-        .shot-verification-content p {
-            color: white;
-            margin-bottom: 20px;
-            font-size: 1.1em;
-        }
-
-        .verification-input {
-            background: rgba(255, 255, 255, 0.1);
-            border: 1px solid rgba(255, 255, 255, 0.3);
-            border-radius: 8px;
-            padding: 12px;
-            color: white;
-            text-align: center;
-            font-size: 1.2em;
-            width: 120px;
-            margin: 10px auto;
-            display: block;
-        }
-
-        .verification-input:focus {
-            outline: none;
-            border-color: #ffd700;
-            box-shadow: 0 0 10px rgba(255, 215, 0, 0.3);
-        }
-
-        .verification-buttons {
-            display: flex;
-            gap: 10px;
-            justify-content: center;
-            margin-top: 20px;
-        }
-
-        .verification-btn {
-            padding: 10px 20px;
-            border: none;
-            border-radius: 25px;
-            font-weight: bold;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-
-        .save-verification-btn {
-            background: linear-gradient(45deg, #4CAF50, #45a049);
-            color: white;
-        }
-
-        .cancel-verification-btn {
-            background: rgba(255, 255, 255, 0.1);
-            border: 1px solid rgba(255, 255, 255, 0.3);
-            color: white;
-        }
-
-        .shot-logged-message {
-            background: rgba(76, 175, 80, 0.2);
-            border: 1px solid rgba(76, 175, 80, 0.5);
-            border-radius: 10px;
-            padding: 15px;
-            margin: 15px 0;
-            text-align: center;
-            color: #4CAF50;
-            font-weight: bold;
-            font-size: 1.1em;
-            animation: fadeInOut 3s ease-in-out;
-        }
-
-        @keyframes fadeInOut {
-            0% { opacity: 0; transform: translateY(-10px); }
-            20% { opacity: 1; transform: translateY(0); }
-            80% { opacity: 1; transform: translateY(0); }
-            100% { opacity: 0; transform: translateY(-10px); }
-        }
-
-        .edit-distance {
-            background: rgba(255, 255, 255, 0.1);
-            border: 1px solid rgba(255, 255, 255, 0.3);
-            border-radius: 5px;
-            padding: 5px 8px;
-            color: white;
-            text-align: center;
-            font-size: 0.9em;
-            width: 60px;
-            transition: all 0.3s ease;
-        }
-
-        .edit-distance:focus {
-            outline: none;
-            border-color: #ffd700;
-            box-shadow: 0 0 8px rgba(255, 215, 0, 0.3);
-            background: rgba(255, 255, 255, 0.15);
-        }
-
-        .edit-distance:hover {
-            border-color: rgba(255, 255, 255, 0.5);
-        }
     </style>
 </head>
 <body>
@@ -760,7 +612,6 @@
 
         <!-- Wedge Selection Screen -->
         <div id="wedge-selection-screen" class="screen hidden">
-            <button class="back-button" onclick="showWelcome()">← Back</button>
             <h2>Select Your Wedges</h2>
             <p>Choose which wedges you carry in your bag:</p>
             
@@ -800,13 +651,10 @@
             </div>
             
             <button id="continue-button" onclick="startShotInput()" disabled>Continue</button>
-            <button id="skip-to-summary-btn" onclick="skipToSummary()" style="background: linear-gradient(45deg, #4CAF50, #45a049); display: none;">Skip to Summary</button>
         </div>
 
         <!-- Shot Input Screen -->
         <div id="shot-input-screen" class="screen hidden">
-            <button class="back-button" onclick="showWedgeSelection()">← Back</button>
-            
             <div class="progress-bar">
                 <div class="progress-fill" id="progress-fill"></div>
             </div>
@@ -872,7 +720,7 @@
         <!-- Results Screen -->
         <div id="results-screen" class="screen hidden">
             <div class="tab-navigation">
-                <button class="tab-button" onclick="addMoreShots()">Add More Shots</button>
+                <button class="tab-button" onclick="showTab('detailed')">Detailed</button>
                 <button class="tab-button" onclick="showTab('summary')">Summary</button>
                 <button class="tab-button active" onclick="showTab('caddy')">Caddy</button>
             </div>
@@ -953,6 +801,7 @@
             </div>
             
             <div class="button-group">
+                <button onclick="resetApp()">Start Over</button>
                 <button onclick="exportResults()" style="background: linear-gradient(45deg, #4CAF50, #45a049);">Export Data</button>
             </div>
         </div>
@@ -974,49 +823,9 @@
         let currentTab = 'caddy';
         let currentUser = null;
         let currentWedgeShots = { '7:30': [], '9:00': [], '11:00': [] };
-        
-        // Store individual shots for editing
-        let individualShots = {};
-
-        // Tab functions - moved to top to ensure they're available
-        function showTab(tabName) {
-            console.log('showTab called with:', tabName);
-            const tabs = document.querySelectorAll('.tab-content');
-            tabs.forEach(tab => tab.classList.add('hidden'));
-            
-            const buttons = document.querySelectorAll('.tab-button');
-            buttons.forEach(button => button.classList.remove('active'));
-            
-            document.getElementById(tabName + '-tab').classList.remove('hidden');
-            
-            const activeButton = Array.from(buttons).find(button => 
-                button.textContent.toLowerCase().includes(tabName.toLowerCase())
-            );
-            if (activeButton) {
-                activeButton.classList.add('active');
-            }
-            
-            currentTab = tabName;
-        }
 
         // Firebase auth state observer
         firebase.auth().onAuthStateChanged((user) => {
-            currentUser = user;
-            if (user) {
-                document.getElementById('user-info').style.display = 'flex';
-                document.getElementById('user-name').textContent = user.displayName;
-                document.getElementById('user-avatar').src = user.photoURL;
-                document.getElementById('login-section').style.display = 'none';
-                document.getElementById('get-started-btn').style.display = 'block';
-                loadUserData();
-            } else {
-                document.getElementById('user-info').style.display = 'none';
-                document.getElementById('login-section').style.display = 'block';
-                document.getElementById('get-started-btn').style.display = 'none';
-                document.getElementById('view-matrix-btn').style.display = 'none';
-                showWelcome();
-            }
-        });
             currentUser = user;
             if (user) {
                 document.getElementById('user-info').style.display = 'flex';
@@ -1097,14 +906,9 @@
                     if (selectedWedges.length > 0 && Object.keys(wedgeData).length > 0) {
                         document.getElementById('view-matrix-btn').style.display = 'block';
                         document.getElementById('get-started-btn').textContent = 'Update Matrix';
-                        
-                        // Automatically go to summary screen instead of welcome
-                        showResults();
-                        showTab('summary'); // Show summary tab by default
                     } else {
                         document.getElementById('view-matrix-btn').style.display = 'none';
                         document.getElementById('get-started-btn').textContent = 'Get Started';
-                        showWelcome();
                     }
                 }
             } catch (error) {
@@ -1121,16 +925,6 @@
         function showWedgeSelection() {
             hideAllScreens();
             document.getElementById('wedge-selection-screen').classList.remove('hidden');
-            
-            // Show "Skip to Summary" button only if user has existing data
-            if (selectedWedges.length > 0 && Object.keys(wedgeData).length > 0) {
-                document.getElementById('skip-to-summary-btn').style.display = 'block';
-            } else {
-                document.getElementById('skip-to-summary-btn').style.display = 'none';
-            }
-            
-            // Reset the current wedge index so we don't lose data when backing out
-            currentWedgeIndex = 0;
         }
 
         function hideAllScreens() {
@@ -1182,27 +976,15 @@
             const progress = ((currentWedgeIndex) / selectedWedges.length) * 100;
             document.getElementById('progress-fill').style.width = progress + '%';
             
-            // Load existing shots if available
-            const wedgeKey = currentWedge;
-            if (individualShots[wedgeKey]) {
-                currentWedgeShots = {
-                    '7:30': [...(individualShots[wedgeKey]['7:30'] || [])],
-                    '9:00': [...(individualShots[wedgeKey]['9:00'] || [])],
-                    '11:00': [...(individualShots[wedgeKey]['11:00'] || [])]
-                };
-            } else {
-                currentWedgeShots = { '7:30': [], '9:00': [], '11:00': [] };
-            }
-            
-            // Clear input fields
+            // Clear shot inputs and lists
+            currentWedgeShots = { '7:30': [], '9:00': [], '11:00': [] };
             document.getElementById('shot-730').value = '';
             document.getElementById('shot-900').value = '';
             document.getElementById('shot-1100').value = '';
+            document.getElementById('shots-730').innerHTML = '';
+            document.getElementById('shots-900').innerHTML = '';
+            document.getElementById('shots-1100').innerHTML = '';
             
-            // Update displays
-            updateShotsList('7:30');
-            updateShotsList('9:00');
-            updateShotsList('11:00');
             updateNextButtonState();
         }
 
@@ -1261,13 +1043,6 @@
             const currentWedge = selectedWedges[currentWedgeIndex];
             const positions = ['7:30', '9:00', '11:00'];
             
-            // Save individual shots
-            individualShots[currentWedge] = {
-                '7:30': [...currentWedgeShots['7:30']],
-                '9:00': [...currentWedgeShots['9:00']],
-                '11:00': [...currentWedgeShots['11:00']]
-            };
-            
             wedgeData[currentWedge] = {};
             
             positions.forEach(position => {
@@ -1319,7 +1094,6 @@
             hideAllScreens();
             document.getElementById('results-screen').classList.remove('hidden');
             
-            // Always populate the results when showing the results screen
             populateDetailedResults();
             populateSummaryResults();
             showTab('caddy'); // Default to caddy tab
@@ -1327,61 +1101,68 @@
         }
 
         function populateDetailedResults() {
-            const summaryDetailedBody = document.getElementById('summary-detailed-body');
-            if (!summaryDetailedBody) {
-                console.error('Summary table body not found');
-                return;
-            }
+            const tbody = document.getElementById('results-body');
+            tbody.innerHTML = '';
             
-            summaryDetailedBody.innerHTML = '';
-            
-            // Get all wedges that have data, not just selectedWedges
-            const allWedgesWithData = Object.keys(wedgeData);
-            console.log('All wedges with data:', allWedgesWithData);
-            console.log('Selected wedges:', selectedWedges);
-            console.log('Wedge data:', wedgeData);
-            
-            allWedgesWithData.forEach(wedge => {
-                if (wedgeData[wedge]) {
-                    const summaryRow = document.createElement('tr');
-                    summaryRow.innerHTML = `
-                        <td class="wedge-header">${wedge}</td>
-                        <td>${wedgeData[wedge]['7:30']} yds</td>
-                        <td>${wedgeData[wedge]['9:00']} yds</td>
-                        <td>${wedgeData[wedge]['11:00']} yds</td>
-                    `;
-                    summaryDetailedBody.appendChild(summaryRow);
-                }
+            selectedWedges.forEach(wedge => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td class="wedge-header">${wedge}</td>
+                    <td>${wedgeData[wedge]['7:30']} yds</td>
+                    <td>${wedgeData[wedge]['9:00']} yds</td>
+                    <td>${wedgeData[wedge]['11:00']} yds</td>
+                `;
+                tbody.appendChild(row);
             });
-            
-            console.log('Summary table populated with', allWedgesWithData.length, 'wedges');
         }
 
         function populateSummaryResults() {
-            populateDetailedResults();
-        }
-
-        // Function to skip to summary from wedge selection
-        function skipToSummary() {
-            showResults();
-            showTab('summary');
-        }
-
-        // Function for "Add More Shots" button
-        function addMoreShots() {
-            showWedgeSelection();
-            // Pre-select the wedges they had before
+            // Populate detailed matrix in summary tab
+            const summaryDetailedBody = document.getElementById('summary-detailed-body');
+            summaryDetailedBody.innerHTML = '';
+            
             selectedWedges.forEach(wedge => {
-                const wedgeElement = document.querySelector(`[data-wedge="${wedge}"]`);
-                if (wedgeElement) {
-                    wedgeElement.classList.add('selected');
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td class="wedge-header">${wedge}</td>
+                    <td>${wedgeData[wedge]['7:30']} yds</td>
+                    <td>${wedgeData[wedge]['9:00']} yds</td>
+                    <td>${wedgeData[wedge]['11:00']} yds</td>
+                `;
+                summaryDetailedBody.appendChild(row);
+            });
+
+            // Populate average summary
+            const tbody = document.getElementById('summary-body');
+            tbody.innerHTML = '';
+            
+            selectedWedges.forEach(wedge => {
+                const distances = [];
+                const positions = ['7:30', '9:00', '11:00'];
+                
+                positions.forEach(position => {
+                    const distance = wedgeData[wedge][position];
+                    if (distance !== 'N/A' && !isNaN(distance)) {
+                        distances.push(distance);
+                    }
+                });
+                
+                if (distances.length > 0) {
+                    const average = Math.round(distances.reduce((a, b) => a + b, 0) / distances.length);
+                    const min = Math.min(...distances);
+                    const max = Math.max(...distances);
+                    const range = `${min}-${max} yds`;
+                    
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td class="wedge-header">${wedge}</td>
+                        <td>${average} yds</td>
+                        <td>${range}</td>
+                    `;
+                    tbody.appendChild(row);
                 }
             });
-            document.getElementById('continue-button').disabled = false;
         }
-
-        // Utility functions
-        function clearAllData() {
 
         // Tab functions
         function showTab(tabName) {
@@ -1394,7 +1175,7 @@
             document.getElementById(tabName + '-tab').classList.remove('hidden');
             
             const activeButton = Array.from(buttons).find(button => 
-                button.textContent.toLowerCase().includes(tabName.toLowerCase())
+                button.textContent.toLowerCase() === tabName.toLowerCase()
             );
             if (activeButton) {
                 activeButton.classList.add('active');
@@ -1403,17 +1184,7 @@
             currentTab = tabName;
         }
 
-        // Results functions
-        function showResults() {
-            hideAllScreens();
-            document.getElementById('results-screen').classList.remove('hidden');
-            
-            // Always populate the results when showing the results screen
-            populateDetailedResults();
-            populateSummaryResults();
-            showTab('caddy'); // Default to caddy tab
-            updateRecommendations();
-        }
+        // Caddy functions
         function updateRecommendations() {
             const holeDistance = parseFloat(document.getElementById('hole-distance').value);
             const recommendationsDiv = document.getElementById('recommendations');
@@ -1463,215 +1234,15 @@
                     <div class="recommendation">
                         <h4>Option ${index + 1}: ${rec.wedge} Wedge - ${rec.positionName}</h4>
                         <p>Distance: ${rec.distance} yds (${diffText})</p>
-                        <button class="shot-recommendation-btn" onclick="selectShot('${rec.wedge}', '${rec.position}', ${rec.distance}, '${rec.positionName}')">
-                            Use This Shot
-                        </button>
                     </div>
                 `;
             });
             
-        // Shot verification functions
-        function selectShot(wedge, position, expectedDistance, positionName) {
-            // Show verification modal
-            const modal = document.createElement('div');
-            modal.className = 'shot-verification-modal';
-            modal.innerHTML = `
-                <div class="shot-verification-content">
-                    <h3>Shot Verification</h3>
-                    <p>You used: <strong>${wedge} wedge - ${positionName}</strong></p>
-                    <p>Expected: <strong>${expectedDistance} yards</strong></p>
-                    <p>What was your actual distance?</p>
-                    <input type="number" class="verification-input" id="actual-distance" placeholder="${expectedDistance}" autofocus>
-                    <div class="verification-buttons">
-                        <button class="verification-btn save-verification-btn" onclick="saveShot('${wedge}', '${position}', ${expectedDistance})">Save Shot</button>
-                        <button class="verification-btn cancel-verification-btn" onclick="cancelVerification()">Cancel</button>
-                    </div>
-                </div>
-            `;
-            
-            document.body.appendChild(modal);
-            
-            // Focus on input and select text
-            setTimeout(() => {
-                const input = document.getElementById('actual-distance');
-                input.focus();
-                input.select();
-            }, 100);
+            recommendationsDiv.innerHTML = html;
         }
-
-        function saveShot(wedge, position, expectedDistance) {
-            const actualDistance = parseFloat(document.getElementById('actual-distance').value);
-            
-            if (isNaN(actualDistance) || actualDistance <= 0) {
-                alert('Please enter a valid distance');
-                return;
-            }
-            
-            // Add this shot to the individual shots data
-            if (!individualShots[wedge]) {
-                individualShots[wedge] = { '7:30': [], '9:00': [], '11:00': [] };
-            }
-            individualShots[wedge][position].push(actualDistance);
-            
-            // Recalculate average
-            const shots = individualShots[wedge][position];
-            const newAverage = calculateAverageWithoutOutliers(shots);
-            wedgeData[wedge][position] = Math.round(newAverage);
-            
-            // Close modal
-            cancelVerification();
-            
-            // Show success message on the page
-            const messageDiv = document.getElementById('shot-logged-message');
-            messageDiv.textContent = `${actualDistance} yards logged for ${wedge} wedge`;
-            messageDiv.style.display = 'block';
-            
-            // Hide message after 3 seconds (matches animation duration)
-            setTimeout(() => {
-                messageDiv.style.display = 'none';
-            }, 3000);
-            
-            // Save to Firebase and refresh displays
-            saveUserData();
-            populateDetailedResults();
-            updateRecommendations();
-            
-            console.log(`Added shot: ${wedge} ${position} = ${actualDistance} yds. New average: ${wedgeData[wedge][position]} yds`);
-        }
-
-        function cancelVerification() {
-            const modal = document.querySelector('.shot-verification-modal');
-            if (modal) {
-                modal.remove();
-            }
-        }
-
-        // Close modal when clicking outside
-        document.addEventListener('click', function(e) {
-            if (e.target.classList.contains('shot-verification-modal')) {
-                cancelVerification();
-            }
-        });
 
         // Utility functions
-        function clearAllData() {
-
-        // Shot verification functions
-        function selectShot(wedge, position, expectedDistance, positionName) {
-            // Show verification modal
-            const modal = document.createElement('div');
-            modal.className = 'shot-verification-modal';
-            modal.innerHTML = `
-                <div class="shot-verification-content">
-                    <h3>Shot Verification</h3>
-                    <p>You used: <strong>${wedge} wedge - ${positionName}</strong></p>
-                    <p>Expected: <strong>${expectedDistance} yards</strong></p>
-                    <p>What was your actual distance?</p>
-                    <input type="number" class="verification-input" id="actual-distance" placeholder="${expectedDistance}" autofocus>
-                    <div class="verification-buttons">
-                        <button class="verification-btn save-verification-btn" onclick="saveShot('${wedge}', '${position}', ${expectedDistance})">Save Shot</button>
-                        <button class="verification-btn cancel-verification-btn" onclick="cancelVerification()">Cancel</button>
-                    </div>
-                </div>
-            `;
-            
-            document.body.appendChild(modal);
-            
-            // Focus on input and select text
-            setTimeout(() => {
-                const input = document.getElementById('actual-distance');
-                input.focus();
-                input.select();
-            }, 100);
-        }
-
-        function saveShot(wedge, position, expectedDistance) {
-            const actualDistance = parseFloat(document.getElementById('actual-distance').value);
-            
-            if (isNaN(actualDistance) || actualDistance <= 0) {
-                alert('Please enter a valid distance');
-                return;
-            }
-            
-            // Add this shot to the individual shots data
-            if (!individualShots[wedge]) {
-                individualShots[wedge] = { '7:30': [], '9:00': [], '11:00': [] };
-            }
-            individualShots[wedge][position].push(actualDistance);
-            
-            // Recalculate average
-            const shots = individualShots[wedge][position];
-            const newAverage = calculateAverageWithoutOutliers(shots);
-            wedgeData[wedge][position] = Math.round(newAverage);
-            
-            // Close modal
-            cancelVerification();
-            
-            // Show success message on the page
-            const messageDiv = document.getElementById('shot-logged-message');
-            messageDiv.textContent = `${actualDistance} yards logged for ${wedge} wedge`;
-            messageDiv.style.display = 'block';
-            
-            // Hide message after 3 seconds (matches animation duration)
-            setTimeout(() => {
-                messageDiv.style.display = 'none';
-            }, 3000);
-            
-            // Save to Firebase and refresh displays
-            saveUserData();
-            populateDetailedResults();
-            updateRecommendations();
-            
-            console.log(`Added shot: ${wedge} ${position} = ${actualDistance} yds. New average: ${wedgeData[wedge][position]} yds`);
-        }
-
-        function addShotToData(wedge, position, actualDistance) {
-            // For simplicity, we'll add this shot to the existing data and recalculate
-            // In a real app, you might want to store individual shots separately
-            
-            // Create a temporary array with existing calculated distance repeated 3 times
-            // (simulating the original shots) plus the new actual shot
-            const currentDistance = wedgeData[wedge][position];
-            let shots = [];
-            
-            if (currentDistance !== 'N/A' && !isNaN(currentDistance)) {
-                // Add the current average 3 times (simulating original data)
-                shots = [currentDistance, currentDistance, currentDistance];
-            }
-            
-            // Add the new actual shot
-            shots.push(actualDistance);
-            
-            // Recalculate average without outliers
-            const newAverage = calculateAverageWithoutOutliers(shots);
-            wedgeData[wedge][position] = Math.round(newAverage);
-            
-            // Save to Firebase
-            saveUserData();
-            
-            // Update the detailed results displays
-            populateDetailedResults();
-            populateSummaryResults();
-            
-            console.log(`Added shot: ${wedge} ${position} = ${actualDistance} yds. New average: ${wedgeData[wedge][position]} yds`);
-        }
-
-        function cancelVerification() {
-            const modal = document.querySelector('.shot-verification-modal');
-            if (modal) {
-                modal.remove();
-            }
-        }
-
-        // Close modal when clicking outside
-        document.addEventListener('click', function(e) {
-            if (e.target.classList.contains('shot-verification-modal')) {
-                cancelVerification();
-            }
-        });
-
-        // Function for "Add More Shots" button
-        function addMoreShots() {
+        function reEnterShots() {
             showWedgeSelection();
             // Pre-select the wedges they had before
             selectedWedges.forEach(wedge => {
@@ -1682,11 +1253,12 @@
             });
             document.getElementById('continue-button').disabled = false;
         }
+
+        function clearAllData() {
             if (confirm('Are you sure you want to clear all your wedge data? This cannot be undone.')) {
                 selectedWedges = [];
                 currentWedgeIndex = 0;
                 wedgeData = {};
-                individualShots = {};
                 
                 const wedgeOptions = document.querySelectorAll('.wedge-option');
                 wedgeOptions.forEach(option => option.classList.remove('selected'));
@@ -1723,42 +1295,39 @@
             let exportText = "Wedge Matrix Results\n";
             exportText += "===================\n\n";
             
-            exportText += "WEDGE DISTANCES\n";
+            exportText += "DETAILED RESULTS\n";
             exportText += "Wedge\t7:30 (¼ Shot)\t9:00 (½ Shot)\t11:00 (Full Shot)\n";
             exportText += "-----\t-----------\t-----------\t--------------\n";
             
             selectedWedges.forEach(wedge => {
-                if (wedgeData[wedge]) {
-                    exportText += `${wedge}\t${wedgeData[wedge]['7:30']} yds\t${wedgeData[wedge]['9:00']} yds\t${wedgeData[wedge]['11:00']} yds\n`;
+                exportText += `${wedge}\t${wedgeData[wedge]['7:30']} yds\t${wedgeData[wedge]['9:00']} yds\t${wedgeData[wedge]['11:00']} yds\n`;
+            });
+            
+            exportText += "\n\nSUMMARY RESULTS\n";
+            exportText += "Wedge\tAverage Distance\tRange\n";
+            exportText += "-----\t---------------\t-----\n";
+            
+            selectedWedges.forEach(wedge => {
+                const distances = [];
+                const positions = ['7:30', '9:00', '11:00'];
+                
+                positions.forEach(position => {
+                    const distance = wedgeData[wedge][position];
+                    if (distance !== 'N/A' && !isNaN(distance)) {
+                        distances.push(distance);
+                    }
+                });
+                
+                if (distances.length > 0) {
+                    const average = Math.round(distances.reduce((a, b) => a + b, 0) / distances.length);
+                    const min = Math.min(...distances);
+                    const max = Math.max(...distances);
+                    const range = `${min}-${max} yds`;
+                    
+                    exportText += `${wedge}\t${average} yds\t${range}\n`;
                 }
             });
             
-            // Check if we're on mobile (specifically iOS Safari)
-            const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
-            const isSafari = /Safari/i.test(navigator.userAgent) && !/Chrome/i.test(navigator.userAgent);
-            
-            if (isMobile && isSafari) {
-                // For mobile Safari, show the text in a popup for easy copy/paste
-                const result = confirm("Mobile export detected. Would you like to:\n\nOK = Copy text to clipboard\nCancel = Try download");
-                
-                if (result) {
-                    // Copy to clipboard
-                    if (navigator.clipboard && navigator.clipboard.writeText) {
-                        navigator.clipboard.writeText(exportText).then(() => {
-                            alert("Wedge matrix data copied to clipboard! You can paste it into Notes, Messages, or any text app.");
-                        }).catch(() => {
-                            // Fallback: show text for manual copy
-                            showTextForCopy(exportText);
-                        });
-                    } else {
-                        // Fallback: show text for manual copy
-                        showTextForCopy(exportText);
-                    }
-                    return;
-                }
-            }
-            
-            // Regular download for desktop/other browsers
             const blob = new Blob([exportText], { type: 'text/plain' });
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
@@ -1768,49 +1337,6 @@
             a.click();
             document.body.removeChild(a);
             URL.revokeObjectURL(url);
-        }
-
-        function showTextForCopy(text) {
-            // Create a modal-like display for manual copying
-            const modal = document.createElement('div');
-            modal.style.cssText = `
-                position: fixed;
-                top: 0;
-                left: 0;
-                width: 100%;
-                height: 100%;
-                background: rgba(0,0,0,0.8);
-                z-index: 1000;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                padding: 20px;
-            `;
-            
-            const content = document.createElement('div');
-            content.style.cssText = `
-                background: white;
-                border-radius: 10px;
-                padding: 20px;
-                max-width: 90%;
-                max-height: 80%;
-                overflow-y: auto;
-            `;
-            
-            content.innerHTML = `
-                <h3 style="color: #333; margin-bottom: 15px;">Your Wedge Matrix Data</h3>
-                <p style="color: #666; margin-bottom: 15px;">Select all text below and copy it:</p>
-                <textarea style="width: 100%; height: 300px; font-family: monospace; font-size: 12px; border: 1px solid #ccc; padding: 10px;" readonly>${text}</textarea>
-                <button onclick="this.parentElement.parentElement.remove()" style="margin-top: 15px; padding: 10px 20px; background: #4CAF50; color: white; border: none; border-radius: 5px; cursor: pointer;">Close</button>
-            `;
-            
-            modal.appendChild(content);
-            document.body.appendChild(modal);
-            
-            // Auto-select the text
-            const textarea = content.querySelector('textarea');
-            textarea.select();
-            textarea.setSelectionRange(0, 99999); // For mobile
         }
 
         // Keyboard shortcuts for adding shots
