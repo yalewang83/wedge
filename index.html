@@ -577,6 +577,110 @@
             box-shadow: 0 6px 20px rgba(156, 39, 176, 0.4);
         }
 
+        .shot-recommendation-btn {
+            background: linear-gradient(45deg, #2196F3, #1976D2);
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 25px;
+            font-size: 1em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin: 10px 5px;
+            display: inline-block;
+            box-shadow: 0 4px 15px rgba(33, 150, 243, 0.3);
+        }
+
+        .shot-recommendation-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(33, 150, 243, 0.4);
+            background: linear-gradient(45deg, #1976D2, #1565C0);
+        }
+
+        .shot-verification-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .shot-verification-content {
+            background: linear-gradient(135deg, #1e3c72, #2a5298);
+            border-radius: 20px;
+            padding: 30px;
+            max-width: 400px;
+            width: 100%;
+            text-align: center;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .shot-verification-content h3 {
+            color: #ffd700;
+            margin-bottom: 20px;
+            font-size: 1.5em;
+        }
+
+        .shot-verification-content p {
+            color: white;
+            margin-bottom: 20px;
+            font-size: 1.1em;
+        }
+
+        .verification-input {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 8px;
+            padding: 12px;
+            color: white;
+            text-align: center;
+            font-size: 1.2em;
+            width: 120px;
+            margin: 10px auto;
+            display: block;
+        }
+
+        .verification-input:focus {
+            outline: none;
+            border-color: #ffd700;
+            box-shadow: 0 0 10px rgba(255, 215, 0, 0.3);
+        }
+
+        .verification-buttons {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin-top: 20px;
+        }
+
+        .verification-btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 25px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .save-verification-btn {
+            background: linear-gradient(45deg, #4CAF50, #45a049);
+            color: white;
+        }
+
+        .cancel-verification-btn {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            color: white;
+        }
+
         .edit-distance {
             background: rgba(255, 255, 255, 0.1);
             border: 1px solid rgba(255, 255, 255, 0.3);
@@ -680,6 +784,8 @@
 
         <!-- Shot Input Screen -->
         <div id="shot-input-screen" class="screen hidden">
+            <button class="back-button" onclick="showWedgeSelection()">← Back to Wedge Selection</button>
+            
             <div class="progress-bar">
                 <div class="progress-fill" id="progress-fill"></div>
             </div>
@@ -744,6 +850,8 @@
 
         <!-- Results Screen -->
         <div id="results-screen" class="screen hidden">
+            <button class="back-button" onclick="showWedgeSelection()">← Back to Wedge Selection</button>
+            
             <div class="tab-navigation">
                 <button class="tab-button" onclick="showTab('detailed')">Detailed</button>
                 <button class="tab-button" onclick="showTab('summary')">Summary</button>
@@ -826,7 +934,6 @@
             </div>
             
             <div class="button-group">
-                <button onclick="resetApp()">Start Over</button>
                 <button onclick="exportResults()" style="background: linear-gradient(45deg, #4CAF50, #45a049);">Export Data</button>
             </div>
         </div>
@@ -1275,12 +1382,114 @@
                     <div class="recommendation">
                         <h4>Option ${index + 1}: ${rec.wedge} Wedge - ${rec.positionName}</h4>
                         <p>Distance: ${rec.distance} yds (${diffText})</p>
+                        <button class="shot-recommendation-btn" onclick="selectShot('${rec.wedge}', '${rec.position}', ${rec.distance}, '${rec.positionName}')">
+                            Use This Shot
+                        </button>
                     </div>
                 `;
             });
             
             recommendationsDiv.innerHTML = html;
         }
+
+        // Shot verification functions
+        function selectShot(wedge, position, expectedDistance, positionName) {
+            // Show verification modal
+            const modal = document.createElement('div');
+            modal.className = 'shot-verification-modal';
+            modal.innerHTML = `
+                <div class="shot-verification-content">
+                    <h3>Shot Verification</h3>
+                    <p>You used: <strong>${wedge} wedge - ${positionName}</strong></p>
+                    <p>Expected: <strong>${expectedDistance} yards</strong></p>
+                    <p>What was your actual distance?</p>
+                    <input type="number" class="verification-input" id="actual-distance" placeholder="${expectedDistance}" autofocus>
+                    <div class="verification-buttons">
+                        <button class="verification-btn save-verification-btn" onclick="saveShot('${wedge}', '${position}', ${expectedDistance})">Save Shot</button>
+                        <button class="verification-btn cancel-verification-btn" onclick="cancelVerification()">Cancel</button>
+                    </div>
+                </div>
+            `;
+            
+            document.body.appendChild(modal);
+            
+            // Focus on input and select text
+            setTimeout(() => {
+                const input = document.getElementById('actual-distance');
+                input.focus();
+                input.select();
+            }, 100);
+        }
+
+        function saveShot(wedge, position, expectedDistance) {
+            const actualDistance = parseFloat(document.getElementById('actual-distance').value);
+            
+            if (isNaN(actualDistance) || actualDistance <= 0) {
+                alert('Please enter a valid distance');
+                return;
+            }
+            
+            // Add this shot to the database for recalculation
+            // We'll create a new array of shots for this position and recalculate
+            addShotToData(wedge, position, actualDistance);
+            
+            // Close modal
+            cancelVerification();
+            
+            // Show success message
+            const difference = Math.abs(actualDistance - expectedDistance);
+            const accuracy = difference <= 5 ? 'Excellent!' : difference <= 10 ? 'Good!' : 'Keep practicing!';
+            
+            alert(`Shot saved! ${accuracy}\nExpected: ${expectedDistance} yds\nActual: ${actualDistance} yds\nDifference: ${difference} yds`);
+            
+            // Refresh recommendations with updated data
+            updateRecommendations();
+        }
+
+        function addShotToData(wedge, position, actualDistance) {
+            // For simplicity, we'll add this shot to the existing data and recalculate
+            // In a real app, you might want to store individual shots separately
+            
+            // Create a temporary array with existing calculated distance repeated 3 times
+            // (simulating the original shots) plus the new actual shot
+            const currentDistance = wedgeData[wedge][position];
+            let shots = [];
+            
+            if (currentDistance !== 'N/A' && !isNaN(currentDistance)) {
+                // Add the current average 3 times (simulating original data)
+                shots = [currentDistance, currentDistance, currentDistance];
+            }
+            
+            // Add the new actual shot
+            shots.push(actualDistance);
+            
+            // Recalculate average without outliers
+            const newAverage = calculateAverageWithoutOutliers(shots);
+            wedgeData[wedge][position] = Math.round(newAverage);
+            
+            // Save to Firebase
+            saveUserData();
+            
+            // Update the detailed results displays
+            populateDetailedResults();
+            populateSummaryResults();
+            
+            console.log(`Added shot: ${wedge} ${position} = ${actualDistance} yds. New average: ${wedgeData[wedge][position]} yds`);
+        }
+
+        function cancelVerification() {
+            const modal = document.querySelector('.shot-verification-modal');
+            if (modal) {
+                modal.remove();
+            }
+        }
+
+        // Close modal when clicking outside
+        document.addEventListener('click', function(e) {
+            if (e.target.classList.contains('shot-verification-modal')) {
+                cancelVerification();
+            }
+        });
 
         // Utility functions
         function reEnterShots() {
@@ -1369,6 +1578,32 @@
                 }
             });
             
+            // Check if we're on mobile (specifically iOS Safari)
+            const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+            const isSafari = /Safari/i.test(navigator.userAgent) && !/Chrome/i.test(navigator.userAgent);
+            
+            if (isMobile && isSafari) {
+                // For mobile Safari, show the text in a popup for easy copy/paste
+                const result = confirm("Mobile export detected. Would you like to:\n\nOK = Copy text to clipboard\nCancel = Try download");
+                
+                if (result) {
+                    // Copy to clipboard
+                    if (navigator.clipboard && navigator.clipboard.writeText) {
+                        navigator.clipboard.writeText(exportText).then(() => {
+                            alert("Wedge matrix data copied to clipboard! You can paste it into Notes, Messages, or any text app.");
+                        }).catch(() => {
+                            // Fallback: show text for manual copy
+                            showTextForCopy(exportText);
+                        });
+                    } else {
+                        // Fallback: show text for manual copy
+                        showTextForCopy(exportText);
+                    }
+                    return;
+                }
+            }
+            
+            // Regular download for desktop/other browsers
             const blob = new Blob([exportText], { type: 'text/plain' });
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
@@ -1378,6 +1613,49 @@
             a.click();
             document.body.removeChild(a);
             URL.revokeObjectURL(url);
+        }
+
+        function showTextForCopy(text) {
+            // Create a modal-like display for manual copying
+            const modal = document.createElement('div');
+            modal.style.cssText = `
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: rgba(0,0,0,0.8);
+                z-index: 1000;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                padding: 20px;
+            `;
+            
+            const content = document.createElement('div');
+            content.style.cssText = `
+                background: white;
+                border-radius: 10px;
+                padding: 20px;
+                max-width: 90%;
+                max-height: 80%;
+                overflow-y: auto;
+            `;
+            
+            content.innerHTML = `
+                <h3 style="color: #333; margin-bottom: 15px;">Your Wedge Matrix Data</h3>
+                <p style="color: #666; margin-bottom: 15px;">Select all text below and copy it:</p>
+                <textarea style="width: 100%; height: 300px; font-family: monospace; font-size: 12px; border: 1px solid #ccc; padding: 10px;" readonly>${text}</textarea>
+                <button onclick="this.parentElement.parentElement.remove()" style="margin-top: 15px; padding: 10px 20px; background: #4CAF50; color: white; border: none; border-radius: 5px; cursor: pointer;">Close</button>
+            `;
+            
+            modal.appendChild(content);
+            document.body.appendChild(modal);
+            
+            // Auto-select the text
+            const textarea = content.querySelector('textarea');
+            textarea.select();
+            textarea.setSelectionRange(0, 99999); // For mobile
         }
 
         // Keyboard shortcuts for adding shots
