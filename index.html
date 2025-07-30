@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Wedge Matrix</title>
-    <!-- App Version: v2.1.7 - Fixed missing updateRecommendations function -->
+    <!-- App Version: v2.1.8 - Fixed all missing functions: selectShot, saveShot, cancelVerification -->
     <style>
         * {
             margin: 0;
@@ -1454,8 +1454,88 @@
                 `;
             });
             
-            recommendationsDiv.innerHTML = html;
+        // Shot verification functions
+        function selectShot(wedge, position, expectedDistance, positionName) {
+            // Show verification modal
+            const modal = document.createElement('div');
+            modal.className = 'shot-verification-modal';
+            modal.innerHTML = `
+                <div class="shot-verification-content">
+                    <h3>Shot Verification</h3>
+                    <p>You used: <strong>${wedge} wedge - ${positionName}</strong></p>
+                    <p>Expected: <strong>${expectedDistance} yards</strong></p>
+                    <p>What was your actual distance?</p>
+                    <input type="number" class="verification-input" id="actual-distance" placeholder="${expectedDistance}" autofocus>
+                    <div class="verification-buttons">
+                        <button class="verification-btn save-verification-btn" onclick="saveShot('${wedge}', '${position}', ${expectedDistance})">Save Shot</button>
+                        <button class="verification-btn cancel-verification-btn" onclick="cancelVerification()">Cancel</button>
+                    </div>
+                </div>
+            `;
+            
+            document.body.appendChild(modal);
+            
+            // Focus on input and select text
+            setTimeout(() => {
+                const input = document.getElementById('actual-distance');
+                input.focus();
+                input.select();
+            }, 100);
         }
+
+        function saveShot(wedge, position, expectedDistance) {
+            const actualDistance = parseFloat(document.getElementById('actual-distance').value);
+            
+            if (isNaN(actualDistance) || actualDistance <= 0) {
+                alert('Please enter a valid distance');
+                return;
+            }
+            
+            // Add this shot to the individual shots data
+            if (!individualShots[wedge]) {
+                individualShots[wedge] = { '7:30': [], '9:00': [], '11:00': [] };
+            }
+            individualShots[wedge][position].push(actualDistance);
+            
+            // Recalculate average
+            const shots = individualShots[wedge][position];
+            const newAverage = calculateAverageWithoutOutliers(shots);
+            wedgeData[wedge][position] = Math.round(newAverage);
+            
+            // Close modal
+            cancelVerification();
+            
+            // Show success message on the page
+            const messageDiv = document.getElementById('shot-logged-message');
+            messageDiv.textContent = `${actualDistance} yards logged for ${wedge} wedge`;
+            messageDiv.style.display = 'block';
+            
+            // Hide message after 3 seconds (matches animation duration)
+            setTimeout(() => {
+                messageDiv.style.display = 'none';
+            }, 3000);
+            
+            // Save to Firebase and refresh displays
+            saveUserData();
+            populateDetailedResults();
+            updateRecommendations();
+            
+            console.log(`Added shot: ${wedge} ${position} = ${actualDistance} yds. New average: ${wedgeData[wedge][position]} yds`);
+        }
+
+        function cancelVerification() {
+            const modal = document.querySelector('.shot-verification-modal');
+            if (modal) {
+                modal.remove();
+            }
+        }
+
+        // Close modal when clicking outside
+        document.addEventListener('click', function(e) {
+            if (e.target.classList.contains('shot-verification-modal')) {
+                cancelVerification();
+            }
+        });
 
         // Shot verification functions
         function selectShot(wedge, position, expectedDistance, positionName) {
